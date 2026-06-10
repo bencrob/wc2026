@@ -83,6 +83,17 @@ const ORDER_INDEX: Record<MatchId, number> = (() => {
 
 const THIRD_PLACE_ID: MatchId = 'M103';
 
+/** Ids ordonnés par l'arbre, précalculés par tour (statique → évite un tri à chaque CD). */
+const ORDERED_IDS: Record<string, MatchId[]> = (() => {
+  const out: Record<string, MatchId[]> = {};
+  for (const ph of KO_PHASES) {
+    const ids: MatchId[] = [];
+    for (let n = ph.from; n <= ph.to; n++) ids.push('M' + n);
+    out[ph.key] = ids.sort((a, b) => (ORDER_INDEX[a] ?? 0) - (ORDER_INDEX[b] ?? 0));
+  }
+  return out;
+})();
+
 @Component({
   selector: 'wc-knockout',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -97,11 +108,9 @@ export class KnockoutComponent {
   protected readonly thirdPlaceId = THIRD_PLACE_ID;
   protected readonly name = teamName;
 
-  /** Ids d'un tour, ordonnés selon l'arbre (qualifiés adjacents → match centré). */
+  /** Ids d'un tour, ordonnés selon l'arbre (précalculé, stable entre CD). */
   protected orderedIds(phase: KnockoutPhase): MatchId[] {
-    const ids: MatchId[] = [];
-    for (let n = phase.from; n <= phase.to; n++) ids.push('M' + n);
-    return ids.sort((a, b) => (ORDER_INDEX[a] ?? 0) - (ORDER_INDEX[b] ?? 0));
+    return ORDERED_IDS[phase.key] ?? [];
   }
 
   /** Nom de l'équipe si connue, sinon la provenance (« Vainqueur M74 », « 2ᵉ groupe A »…). */
