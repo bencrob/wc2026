@@ -6,7 +6,7 @@
 ![PWA](https://img.shields.io/badge/PWA-offline-blueviolet)
 ![ESLint](https://img.shields.io/badge/code%20style-ESLint-4B32C3?logo=eslint&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-64%20unit%20%2B%203%20e2e-success)
-![License](https://img.shields.io/github/license/bencrob/wc2026)
+![License](https://img.shields.io/badge/license-MIT-green)
 ![Last Commit](https://img.shields.io/github/last-commit/bencrob/wc2026)
 
 Application de pronostics pour la Coupe du Monde FIFA 2026 (48 équipes, 12 groupes,
