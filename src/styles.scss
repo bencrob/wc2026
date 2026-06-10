@@ -38,6 +38,41 @@ body {
 }
 /* You can add global styles to this file, and also import other style files */
 
+/* ----- Thèmes de couleurs (palette par équipe / marque) -----
+   Le thème par défaut est défini sur `html` ci-dessus ; chaque classe
+   `theme-<id>` posée sur <body> par ThemeService surcharge les couleurs
+   (couvre aussi les overlays Material rendus dans <body>). */
+body.theme-france {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$red-palette,
+      ),
+    )
+  );
+}
+body.theme-betclic {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$blue-palette,
+        tertiary: mat.$yellow-palette,
+      ),
+    )
+  );
+}
+body.theme-civ {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$orange-palette,
+        tertiary: mat.$green-palette,
+      ),
+    )
+  );
+}
+
 /* Drapeaux nationaux : webfont auto-hébergée (Windows ne rend pas les emojis-drapeaux).
    Servie depuis public/fonts → mise en cache par le service worker (offline réel). */
 @font-face {

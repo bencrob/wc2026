@@ -1,6 +1,17 @@
 <mat-toolbar color="primary" class="app-bar">
   <span class="title">🏆 Coupe du Monde FIFA 2026</span>
   <span class="spacer"></span>
+  <button mat-icon-button [matMenuTriggerFor]="themeMenu" aria-label="Thème de couleurs" title="Thème">
+    <mat-icon>palette</mat-icon>
+  </button>
+  <mat-menu #themeMenu="matMenu">
+    @for (t of theme.themes; track t.id) {
+      <button mat-menu-item (click)="theme.set(t.id)">
+        <mat-icon>{{ theme.current() === t.id ? 'check' : 'circle' }}</mat-icon>
+        <span>{{ t.label }}</span>
+      </button>
+    }
+  </mat-menu>
   <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
     <mat-icon>more_vert</mat-icon>
   </button>

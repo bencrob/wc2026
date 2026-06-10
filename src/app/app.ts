@@ -8,6 +8,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { TournamentStore } from './application/tournament.store';
 import { FILE_IO } from './application/tokens';
+import { ThemeService } from './presentation/theming/theme.service';
 import { GroupsComponent } from './presentation/features/groups/groups.component';
 import { KnockoutComponent } from './presentation/features/knockout/knockout.component';
 import { ThirdsComponent } from './presentation/features/thirds/thirds.component';
@@ -31,6 +32,7 @@ import { ThirdsComponent } from './presentation/features/thirds/thirds.component
 })
 export class App {
   protected readonly store = inject(TournamentStore);
+  protected readonly theme = inject(ThemeService);
   private readonly fileIo = inject(FILE_IO);
   private readonly snack = inject(MatSnackBar);
 

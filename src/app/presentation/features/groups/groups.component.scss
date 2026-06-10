@@ -4,10 +4,14 @@
 
 mat-expansion-panel {
   margin-bottom: 0.5rem;
+  border-left: 4px solid var(--mat-sys-primary);
+  border-radius: 6px;
 }
 
 .grp-title {
   font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--mat-sys-primary);
 }
 
 .badge {
