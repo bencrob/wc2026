@@ -25,8 +25,9 @@
   font-size: 0.9rem;
   font-weight: 700;
   margin: 0 0 0.6rem;
-  position: sticky;
-  top: 0;
+  padding-bottom: 0.25rem;
+  color: var(--mat-sys-primary);
+  border-bottom: 2px solid var(--mat-sys-tertiary);
 }
 
 .round-matches {
@@ -54,6 +55,9 @@
   gap: 0.4rem;
   padding: 0.15rem 0;
 
+  &.winner {
+    background: var(--wc-winner);
+  }
   &.winner .ko-name {
     font-weight: 700;
     color: var(--mat-sys-primary, #1976d2);

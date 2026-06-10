@@ -51,7 +51,7 @@ mat-expansion-panel {
     font-weight: 700;
   }
   tr.qualif {
-    background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+    background: var(--wc-qualified);
   }
   .warn {
     color: #b8860b;

@@ -38,7 +38,7 @@
     font-weight: 700;
   }
   tr.qualif {
-    background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+    background: var(--wc-qualified);
   }
   tr.cut td {
     border-top: 3px double var(--mat-sys-primary, #1976d2);

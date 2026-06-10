@@ -1,6 +1,14 @@
 <mat-toolbar class="app-bar">
   <span class="title">🏆 Coupe du Monde FIFA 2026</span>
   <span class="spacer"></span>
+  <button
+    mat-icon-button
+    (click)="theme.toggleDark()"
+    [attr.aria-label]="theme.dark() ? 'Mode clair' : 'Mode sombre'"
+    [title]="theme.dark() ? 'Mode clair' : 'Mode sombre'"
+  >
+    <mat-icon>{{ theme.dark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
   <button mat-icon-button [matMenuTriggerFor]="themeMenu" aria-label="Thème de couleurs" title="Thème">
     <mat-icon>palette</mat-icon>
   </button>

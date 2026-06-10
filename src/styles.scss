@@ -43,15 +43,36 @@ body {
    les variables système Material + des variables maison (--wc-toolbar bandeau,
    --wc-stripe liseré drapeau). Couvre aussi les overlays Material (dans <body>). */
 
-/* Défaut — couleurs de la v1 (bleu profond + or) */
+/* Surlignages : par défaut dérivés de la palette du thème (s'adaptent à chaque thème). */
+body {
+  --wc-qualified: color-mix(in srgb, var(--mat-sys-primary) 14%, white);
+  --wc-winner: color-mix(in srgb, var(--mat-sys-primary) 20%, white);
+  --wc-third: color-mix(in srgb, var(--mat-sys-tertiary) 22%, white);
+}
+
+/* Mode sombre : bascule Material en thème foncé et adapte les surlignages
+   (teintes translucides → contraste correct quelle que soit la couleur du thème). */
+body.wc-dark {
+  color-scheme: dark;
+  --wc-qualified: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+  --wc-winner: color-mix(in srgb, var(--mat-sys-primary) 38%, transparent);
+  --wc-third: color-mix(in srgb, var(--mat-sys-tertiary) 32%, transparent);
+}
+
+/* Défaut — palette complète de la v1 (bleu profond + or + vert, surlignages d'origine) */
 body.theme-default {
   --mat-sys-primary: #0a3d62;
   --mat-sys-on-primary: #ffffff;
+  --mat-sys-secondary: #009639;
   --mat-sys-tertiary: #ffd166;
   --mat-sys-on-tertiary: #3a2f00;
   --mat-sys-surface-tint: #0a3d62;
   --wc-toolbar: linear-gradient(135deg, #0a3d62, #074b78);
   --wc-stripe: #ffd166;
+  /* surlignages exacts de la v1 */
+  --wc-qualified: #d1e7dd;
+  --wc-third: #fff3cd;
+  --wc-winner: #cfe2ff;
 }
 
 /* 🇫🇷 Équipe de France — bleu / blanc / rouge */
@@ -63,17 +84,6 @@ body.theme-france {
   --mat-sys-surface-tint: #002654;
   --wc-toolbar: linear-gradient(135deg, #002654, #0050a0);
   --wc-stripe: linear-gradient(90deg, #002654 0 33%, #ffffff 33% 66%, #ed2939 66% 100%);
-}
-
-/* 🟡 Betclic — bleu nuit + jaune (couleurs de marque, approximation) */
-body.theme-betclic {
-  --mat-sys-primary: #1b2a4a;
-  --mat-sys-on-primary: #ffffff;
-  --mat-sys-tertiary: #ffe000;
-  --mat-sys-on-tertiary: #1b2a4a;
-  --mat-sys-surface-tint: #1b2a4a;
-  --wc-toolbar: linear-gradient(135deg, #15233f, #1b2a4a);
-  --wc-stripe: #ffe000;
 }
 
 /* 🇨🇮 Côte d'Ivoire — orange / blanc / vert */
