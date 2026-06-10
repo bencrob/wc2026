@@ -58,7 +58,7 @@ export class KnockoutStageEngine {
 
       m.homeScore = sc.home;
       m.awayScore = sc.away;
-      let winSide: 'home' | 'away' | null = null;
+      let winSide: 'home' | 'away';
       if (sc.home > sc.away) winSide = 'home';
       else if (sc.away > sc.home) winSide = 'away';
       else if (sc.winner === 'home' || sc.winner === 'away') winSide = sc.winner;

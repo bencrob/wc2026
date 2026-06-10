@@ -59,7 +59,7 @@ export class TournamentEngine {
 
     // 3. Classement des 3es + affectation aux créneaux R32
     const third = this.groupStage.rankThirdPlaced(groups);
-    let thirdPlaceAssignment: Record<MatchId, TeamId> = {};
+    const thirdPlaceAssignment: Record<MatchId, TeamId> = {};
     let bestThirds: ThirdPlaceRow[] = [];
     if (third.resolved) {
       bestThirds = third.ranking.filter((t) => t.qualified);

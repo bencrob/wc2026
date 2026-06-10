@@ -3,7 +3,7 @@ import { MatchAccessPolicy } from '../domain/policies/match-access.policy';
 import { MatchId, Score, ScoreMap, Side } from '../domain/models';
 import { TournamentEngine } from '../domain/engines/tournament.engine';
 import { ScoreMapValidator } from '../domain/validation/score-map.validator';
-import { Result, err, ok } from '../domain/validation/result';
+import { Result, ok } from '../domain/validation/result';
 import { FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './tokens';
 
 /**

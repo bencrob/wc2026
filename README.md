@@ -4,7 +4,8 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![PWA](https://img.shields.io/badge/PWA-offline-blueviolet)
-![Tests](https://img.shields.io/badge/tests-55%20unit%20%2B%203%20e2e-success)
+![ESLint](https://img.shields.io/badge/code%20style-ESLint-4B32C3?logo=eslint&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-64%20unit%20%2B%203%20e2e-success)
 ![License](https://img.shields.io/github/license/bencrob/wc2026)
 ![Last Commit](https://img.shields.io/github/last-commit/bencrob/wc2026)
 
