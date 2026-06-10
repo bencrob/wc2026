@@ -3,15 +3,28 @@
 }
 
 .champion-banner {
-  text-align: center;
-  font-weight: 700;
-  font-size: 1.05rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1.25rem;
   padding: 0.6rem 1rem;
   margin-bottom: 1rem;
   border-radius: 0.6rem;
   background: var(--wc-winner);
   color: var(--mat-sys-on-surface);
   border: 1px solid var(--mat-sys-primary);
+
+  .medal {
+    font-size: 1rem;
+  }
+  .medal-gold {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .medal-silver {
+    opacity: 0.85;
+  }
 }
 
 /* ---------- Arbre de bracket ---------- */
@@ -60,22 +73,6 @@
     border-color: #f0ad4e;
     box-shadow: 0 0 0 1px #f0ad4e inset;
   }
-}
-
-/* Connecteurs horizontaux entre colonnes (l'alignement vertical fait l'effet d'arbre) */
-.round:not(:first-of-type) .ko-match::before,
-.round:not(:last-of-type) .ko-match::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 0.85rem;
-  border-top: 2px solid var(--mat-sys-outline-variant, #ccc);
-}
-.round:not(:first-of-type) .ko-match::before {
-  left: -0.85rem;
-}
-.round:not(:last-of-type) .ko-match::after {
-  right: -0.85rem;
 }
 
 .side {

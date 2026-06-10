@@ -115,6 +115,12 @@ export class KnockoutComponent {
     return final?.decided ? this.name(final.winner) : null;
   }
 
+  /** Finaliste = perdant de la finale (vice-champion). */
+  protected runnerUp(): string | null {
+    const final = this.store.knockout()['M104'];
+    return final?.decided ? this.name(final.loser) : null;
+  }
+
   protected match(id: MatchId): KnockoutMatch {
     return this.store.knockout()[id]!;
   }

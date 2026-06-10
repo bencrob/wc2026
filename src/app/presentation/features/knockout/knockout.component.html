@@ -1,5 +1,10 @@
 @if (champion(); as c) {
-  <div class="champion-banner">🏆 Champion : <strong>{{ c }}</strong></div>
+  <div class="champion-banner">
+    <span class="medal medal-gold">🏆 Champion : <strong>{{ c }}</strong></span>
+    @if (runnerUp(); as r) {
+      <span class="medal medal-silver">🥈 Finaliste : <strong>{{ r }}</strong></span>
+    }
+  </div>
 }
 
 <div class="bracket" data-no-swipe>
