@@ -1,0 +1,91 @@
+:host {
+  display: block;
+}
+
+mat-expansion-panel {
+  margin-bottom: 0.5rem;
+}
+
+.grp-title {
+  font-weight: 700;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.6rem;
+  background: #6c757d;
+  color: #fff;
+  &.done {
+    background: #198754;
+  }
+}
+
+.standings {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+
+  th,
+  td {
+    text-align: center;
+    padding: 0.25rem 0.3rem;
+  }
+  th {
+    color: var(--mat-sys-on-surface-variant, #666);
+    font-weight: 500;
+    border-bottom: 1px solid var(--mat-sys-outline-variant, #ddd);
+  }
+  .start {
+    text-align: left;
+  }
+  .team {
+    white-space: nowrap;
+  }
+  .pts {
+    font-weight: 700;
+  }
+  tr.qualif {
+    background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+  }
+  .warn {
+    color: #b8860b;
+    cursor: help;
+  }
+}
+
+.fixtures {
+  display: flex;
+  flex-direction: column;
+}
+
+.fixture {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+
+  .home {
+    text-align: right;
+  }
+  .away {
+    text-align: left;
+  }
+  .inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .dash {
+    opacity: 0.6;
+  }
+}
+
+.sched {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--mat-sys-on-surface-variant, #777);
+  margin-bottom: 0.25rem;
+}

@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.status {
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  background: color-mix(in srgb, #0dcaf0 18%, transparent);
+  &.resolved {
+    background: color-mix(in srgb, #198754 18%, transparent);
+  }
+}
+
+.thirds {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+
+  th,
+  td {
+    text-align: center;
+    padding: 0.3rem 0.4rem;
+  }
+  th {
+    color: var(--mat-sys-on-surface-variant, #666);
+    font-weight: 500;
+    border-bottom: 1px solid var(--mat-sys-outline-variant, #ddd);
+  }
+  .start {
+    text-align: left;
+  }
+  .team {
+    white-space: nowrap;
+  }
+  .pts {
+    font-weight: 700;
+  }
+  tr.qualif {
+    background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+  }
+  tr.cut td {
+    border-top: 3px double var(--mat-sys-primary, #1976d2);
+  }
+}

@@ -1,0 +1,77 @@
+@for (g of groups; track g; let first = $first) {
+  <mat-expansion-panel [expanded]="first">
+    <mat-expansion-panel-header>
+      <mat-panel-title class="grp-title">Groupe {{ g }}</mat-panel-title>
+      <mat-panel-description>
+        <span class="badge" [class.done]="store.groups()[g].complete">
+          {{ entered(g) }}/6
+        </span>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <table class="standings">
+      <thead>
+        <tr>
+          <th class="start">#</th>
+          <th class="start">Équipe</th>
+          <th>J</th><th>G</th><th>N</th><th>P</th>
+          <th>BP</th><th>BC</th><th>Diff</th><th>Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of store.groups()[g].standings; track r.teamId) {
+          <tr [class.qualif]="r.rank <= 2">
+            <td class="start">{{ r.rank }}</td>
+            <td class="start team">
+              <wc-flag [teamId]="r.teamId" />
+              {{ name(r.teamId) }}
+              @if (tied(g, r.rank)) {
+                <span class="warn" title="Égalité départagée par ordre alphabétique">⚠</span>
+              }
+            </td>
+            <td>{{ r.played }}</td><td>{{ r.won }}</td>
+            <td>{{ r.drawn }}</td><td>{{ r.lost }}</td>
+            <td>{{ r.gf }}</td><td>{{ r.ga }}</td>
+            <td>{{ r.gd > 0 ? '+' + r.gd : r.gd }}</td>
+            <td class="pts">{{ r.points }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="fixtures">
+      @for (f of fixturesByGroup[g]; track f.id) {
+        <div class="fixture">
+          <span class="home">{{ name(f.home) }} <wc-flag [teamId]="f.home" /></span>
+          <span class="inputs">
+            <wc-score-input
+              [value]="side(f.id, 'home')"
+              [disabled]="!store.isEditable(f.id)"
+              [ariaLabel]="(name(f.home) ?? '') + ' buts'"
+              (valueChange)="set(f.id, 'home', $event)"
+            />
+            <span class="dash">–</span>
+            <wc-score-input
+              [value]="side(f.id, 'away')"
+              [disabled]="!store.isEditable(f.id)"
+              [ariaLabel]="(name(f.away) ?? '') + ' buts'"
+              (valueChange)="set(f.id, 'away', $event)"
+            />
+          </span>
+          <span class="away"><wc-flag [teamId]="f.away" /> {{ name(f.away) }}</span>
+        </div>
+
+        @if (schedule(f.id); as s) {
+          <div class="sched">{{ s.date }} · {{ s.venue }}</div>
+        }
+        @if (official(f.id); as off) {
+          <wc-comparison-line
+            [official]="off"
+            [prediction]="comparison(f.id)?.prediction ?? null"
+            [verdict]="comparison(f.id)?.verdict ?? null"
+          />
+        }
+      }
+    </div>
+  </mat-expansion-panel>
+}

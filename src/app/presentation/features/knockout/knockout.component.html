@@ -1,0 +1,80 @@
+<p class="hint">
+  Saisissez les scores ; les vainqueurs se propagent automatiquement. En cas de
+  match nul, choisissez le vainqueur aux tirs au but. Un match avec résultat
+  officiel est verrouillé.
+</p>
+
+<div class="bracket">
+  @for (ph of phases; track ph.key) {
+    <section class="round">
+      <h3 class="round-title">{{ ph.label }}</h3>
+      <div class="round-matches">
+        @for (id of ids(ph.from, ph.to); track id) {
+          @let m = match(id);
+          <article class="ko-match" [class.attention]="m.needsAttention">
+            <div class="side" [class.winner]="isWinner(id, m.home)">
+              <wc-flag [teamId]="m.home" />
+              <span class="ko-name" [class.tbd]="!m.home">
+                {{ name(m.home) ?? 'À déterminer' }}
+              </span>
+              <wc-score-input
+                [value]="sideValue(id, 'home')"
+                [disabled]="!store.isEditable(id) || !m.home || !m.away"
+                ariaLabel="Score domicile"
+                (valueChange)="set(id, 'home', $event)"
+              />
+            </div>
+            <div class="side" [class.winner]="isWinner(id, m.away)">
+              <wc-flag [teamId]="m.away" />
+              <span class="ko-name" [class.tbd]="!m.away">
+                {{ name(m.away) ?? 'À déterminer' }}
+              </span>
+              <wc-score-input
+                [value]="sideValue(id, 'away')"
+                [disabled]="!store.isEditable(id) || !m.home || !m.away"
+                ariaLabel="Score extérieur"
+                (valueChange)="set(id, 'away', $event)"
+              />
+            </div>
+
+            @if (showPenalty(id)) {
+              <div class="pen">
+                <span class="pen-label">Tirs au but :</span>
+                <button
+                  type="button"
+                  [class.active]="penaltyPick(id) === 'home'"
+                  (click)="pickWinner(id, 'home')"
+                >
+                  {{ name(m.home) }}
+                </button>
+                <button
+                  type="button"
+                  [class.active]="penaltyPick(id) === 'away'"
+                  (click)="pickWinner(id, 'away')"
+                >
+                  {{ name(m.away) }}
+                </button>
+              </div>
+            }
+
+            <div class="ko-meta">
+              Match {{ id.slice(1) }}
+              @if (schedule(id); as s) {
+                · {{ s.date }} · {{ s.venue }}
+              }
+            </div>
+
+            @if (official(id); as off) {
+              <wc-comparison-line
+                [official]="off"
+                [prediction]="comparison(id)?.prediction ?? null"
+                [verdict]="comparison(id)?.verdict ?? null"
+                [koWinnerName]="koWinnerName(id)"
+              />
+            }
+          </article>
+        }
+      </div>
+    </section>
+  }
+</div>

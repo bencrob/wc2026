@@ -1,0 +1,62 @@
+<mat-toolbar color="primary" class="app-bar">
+  <span class="title">🏆 Coupe du Monde FIFA 2026</span>
+  <span class="spacer"></span>
+  <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="fileInput.click()">
+      <mat-icon>upload</mat-icon><span>Importer mes pronostics</span>
+    </button>
+    <button mat-menu-item (click)="onExport()">
+      <mat-icon>download</mat-icon><span>Exporter mes pronostics</span>
+    </button>
+    <button mat-menu-item (click)="onReset()">
+      <mat-icon>delete</mat-icon><span>Réinitialiser</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
+
+<input
+  #fileInput
+  type="file"
+  accept="application/json,.json"
+  hidden
+  (change)="onImport($event)"
+/>
+
+<div class="container">
+  @let p = store.progress();
+  @let s = store.comparisonSummary();
+
+  <section class="progress" aria-label="Progression">
+    <div class="progress-label">
+      <span>{{ p.total }} / 104 matchs renseignés ({{ p.pct }} %)</span>
+      <span class="muted">Poules {{ p.groupsDone }}/72 · Tableau final {{ p.koDone }}/32</span>
+    </div>
+    <mat-progress-bar mode="determinate" [value]="p.pct" />
+    @if (s.official > 0) {
+      <div class="pronostic">
+        🏟️ {{ s.official }} résultat(s) officiel(s) · Pronostics :
+        <span class="ok">{{ s.exact }} exact(s)</span> ·
+        <span class="mid">{{ s.outcome }} bon(s) résultat(s)</span> ·
+        <span class="ko">{{ s.wrong }} raté(s)</span>
+        @if (s.noPrediction) {
+          · <span class="muted">{{ s.noPrediction }} sans prono</span>
+        }
+      </div>
+    }
+  </section>
+
+  <mat-tab-group class="tabs" [mat-stretch-tabs]="false">
+    <mat-tab label="📋 Poules">
+      <ng-template matTabContent><wc-groups /></ng-template>
+    </mat-tab>
+    <mat-tab label="🥉 Meilleurs 3es">
+      <ng-template matTabContent><wc-thirds /></ng-template>
+    </mat-tab>
+    <mat-tab label="🗺️ Tableau final">
+      <ng-template matTabContent><wc-knockout /></ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</div>
