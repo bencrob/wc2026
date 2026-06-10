@@ -20,6 +20,8 @@ export interface Team {
   readonly name: string;
   readonly flag: string;
   readonly groupId: GroupId;
+  /** Classement FIFA (dernier connu avant la CDM 2026). */
+  readonly fifaRank: number;
 }
 
 /** Score d'un match. `winner` n'a de sens qu'en KO sur un score nul (tirs au but). */

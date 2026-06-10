@@ -19,6 +19,10 @@ describe('Invariants des données du tournoi', () => {
     for (const g of GROUPS) {
       expect(TEAMS.filter((t) => t.groupId === g).length).toBe(4);
     }
+    // chaque équipe a un classement FIFA entier positif
+    for (const t of TEAMS) {
+      expect(Number.isInteger(t.fifaRank) && t.fifaRank > 0, t.name).toBe(true);
+    }
   });
 
   it('72 matchs de poule M1..M72 uniques', () => {

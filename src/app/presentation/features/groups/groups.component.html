@@ -32,6 +32,9 @@
             <td class="start team">
               <wc-flag [teamId]="r.teamId" />
               {{ name(r.teamId) }}
+              <span class="fifa-rank" title="Classement FIFA avant la Coupe du Monde">
+                FIFA #{{ fifaRank(r.teamId) }}
+              </span>
             </td>
             <td>{{ r.played }}</td><td>{{ r.won }}</td>
             <td>{{ r.drawn }}</td><td>{{ r.lost }}</td>

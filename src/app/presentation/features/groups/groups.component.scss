@@ -47,6 +47,17 @@ mat-expansion-panel {
   .team {
     white-space: nowrap;
   }
+  .fifa-rank {
+    margin-left: 0.35rem;
+    padding: 0 0.3rem;
+    border-radius: 0.5rem;
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface-variant, #666);
+    background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+    white-space: nowrap;
+    vertical-align: middle;
+  }
   .pts {
     font-weight: 700;
   }

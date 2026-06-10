@@ -3,7 +3,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { TournamentStore } from '../../../application/tournament.store';
 import { GROUP_FIXTURES } from '../../../domain/data/fixtures';
 import { SCHEDULE } from '../../../domain/data/schedule';
-import { GROUPS, teamName } from '../../../domain/data/teams';
+import { GROUPS, teamFifaRank, teamName } from '../../../domain/data/teams';
 import {
   Comparison,
   GroupFixture,
@@ -41,6 +41,7 @@ export class GroupsComponent {
   protected readonly groups = GROUPS;
   protected readonly fixturesByGroup = FIXTURES_BY_GROUP;
   protected readonly name = teamName;
+  protected readonly fifaRank = teamFifaRank;
 
   protected entered(g: GroupId): number {
     return this.store.groups()[g].standings.reduce((s, r) => s + r.played, 0) / 2;
