@@ -1,5 +1,6 @@
-@for (g of groups; track g; let first = $first) {
-  <mat-expansion-panel [expanded]="first">
+<mat-accordion>
+  @for (g of groups; track g; let first = $first) {
+    <mat-expansion-panel [expanded]="first">
     <mat-expansion-panel-header>
       <mat-panel-title class="grp-title">Groupe {{ g }}</mat-panel-title>
       <mat-panel-description>
@@ -74,4 +75,5 @@
       }
     </div>
   </mat-expansion-panel>
-}
+  }
+</mat-accordion>
