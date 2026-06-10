@@ -6,9 +6,29 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  background: var(--wc-toolbar, var(--mat-sys-primary));
+  color: #fff;
+
   .title {
     font-size: 1.05rem;
     font-weight: 700;
+  }
+
+  // Icônes/boutons lisibles sur le bandeau coloré
+  .mat-icon,
+  button {
+    color: #fff;
+  }
+
+  // Liseré drapeau / accent en bas de la barre
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--wc-stripe, transparent);
   }
 }
 

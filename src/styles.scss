@@ -38,39 +38,53 @@ body {
 }
 /* You can add global styles to this file, and also import other style files */
 
-/* ----- Thèmes de couleurs (palette par équipe / marque) -----
-   Le thème par défaut est défini sur `html` ci-dessus ; chaque classe
-   `theme-<id>` posée sur <body> par ThemeService surcharge les couleurs
-   (couvre aussi les overlays Material rendus dans <body>). */
+/* ----- Thèmes de couleurs (couleurs de marque exactes) -----
+   Chaque classe `theme-<id>` (posée sur <body> par ThemeService) surcharge
+   les variables système Material + des variables maison (--wc-toolbar bandeau,
+   --wc-stripe liseré drapeau). Couvre aussi les overlays Material (dans <body>). */
+
+/* Défaut — couleurs de la v1 (bleu profond + or) */
+body.theme-default {
+  --mat-sys-primary: #0a3d62;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-tertiary: #ffd166;
+  --mat-sys-on-tertiary: #3a2f00;
+  --mat-sys-surface-tint: #0a3d62;
+  --wc-toolbar: linear-gradient(135deg, #0a3d62, #074b78);
+  --wc-stripe: #ffd166;
+}
+
+/* 🇫🇷 Équipe de France — bleu / blanc / rouge */
 body.theme-france {
-  @include mat.theme(
-    (
-      color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$red-palette,
-      ),
-    )
-  );
+  --mat-sys-primary: #002654;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-tertiary: #ed2939;
+  --mat-sys-on-tertiary: #ffffff;
+  --mat-sys-surface-tint: #002654;
+  --wc-toolbar: linear-gradient(135deg, #002654, #0050a0);
+  --wc-stripe: linear-gradient(90deg, #002654 0 33%, #ffffff 33% 66%, #ed2939 66% 100%);
 }
+
+/* 🟡 Betclic — bleu nuit + jaune (couleurs de marque, approximation) */
 body.theme-betclic {
-  @include mat.theme(
-    (
-      color: (
-        primary: mat.$blue-palette,
-        tertiary: mat.$yellow-palette,
-      ),
-    )
-  );
+  --mat-sys-primary: #1b2a4a;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-tertiary: #ffe000;
+  --mat-sys-on-tertiary: #1b2a4a;
+  --mat-sys-surface-tint: #1b2a4a;
+  --wc-toolbar: linear-gradient(135deg, #15233f, #1b2a4a);
+  --wc-stripe: #ffe000;
 }
+
+/* 🇨🇮 Côte d'Ivoire — orange / blanc / vert */
 body.theme-civ {
-  @include mat.theme(
-    (
-      color: (
-        primary: mat.$orange-palette,
-        tertiary: mat.$green-palette,
-      ),
-    )
-  );
+  --mat-sys-primary: #ef7d00;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-tertiary: #009e60;
+  --mat-sys-on-tertiary: #ffffff;
+  --mat-sys-surface-tint: #ef7d00;
+  --wc-toolbar: linear-gradient(135deg, #ef7d00, #f59e2e);
+  --wc-stripe: linear-gradient(90deg, #ef7d00 0 33%, #ffffff 33% 66%, #009e60 66% 100%);
 }
 
 /* Drapeaux nationaux : webfont auto-hébergée (Windows ne rend pas les emojis-drapeaux).
