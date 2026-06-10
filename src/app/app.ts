@@ -12,6 +12,7 @@ import { ThemeService } from './presentation/theming/theme.service';
 import { GroupsComponent } from './presentation/features/groups/groups.component';
 import { KnockoutComponent } from './presentation/features/knockout/knockout.component';
 import { ThirdsComponent } from './presentation/features/thirds/thirds.component';
+import { SwipeDirective } from './presentation/ui/swipe.directive';
 
 @Component({
   selector: 'wc-root',
@@ -23,6 +24,7 @@ import { ThirdsComponent } from './presentation/features/thirds/thirds.component
     MatMenuModule,
     MatProgressBarModule,
     MatTabsModule,
+    SwipeDirective,
     GroupsComponent,
     ThirdsComponent,
     KnockoutComponent,
@@ -37,6 +39,11 @@ export class App {
   protected readonly theme = inject(ThemeService);
   private readonly fileIo = inject(FILE_IO);
   private readonly snack = inject(MatSnackBar);
+
+  /** Change d'onglet relativement (swipe) en restant dans [0, 2]. */
+  protected goRelative(delta: number): void {
+    this.selected.set(Math.min(2, Math.max(0, this.selected() + delta)));
+  }
 
   protected onExport(): void {
     this.store.downloadPredictions();

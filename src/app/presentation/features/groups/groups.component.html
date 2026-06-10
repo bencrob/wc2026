@@ -32,9 +32,6 @@
             <td class="start team">
               <wc-flag [teamId]="r.teamId" />
               {{ name(r.teamId) }}
-              @if (tied(g, r.rank)) {
-                <span class="warn" title="Égalité départagée par ordre alphabétique">⚠</span>
-              }
             </td>
             <td>{{ r.played }}</td><td>{{ r.won }}</td>
             <td>{{ r.drawn }}</td><td>{{ r.lost }}</td>

@@ -1,5 +1,5 @@
-<mat-toolbar class="app-bar">
-  <span class="title">🏆 Coupe du Monde FIFA 2026</span>
+<mat-toolbar class="app-bar" role="banner">
+  <h1 class="title">🏆 Coupe du Monde FIFA 2026</h1>
   <span class="spacer"></span>
   <button
     mat-icon-button
@@ -44,7 +44,7 @@
   (change)="onImport($event)"
 />
 
-<div class="container">
+<main class="container">
   @let p = store.progress();
   @let s = store.comparisonSummary();
 
@@ -53,7 +53,12 @@
       <span>{{ p.total }} / 104 matchs renseignés ({{ p.pct }} %)</span>
       <span class="muted">Poules {{ p.groupsDone }}/72 · Tableau final {{ p.koDone }}/32</span>
     </div>
-    <mat-progress-bar mode="determinate" [value]="p.pct" />
+    <mat-progress-bar
+      mode="determinate"
+      [value]="p.pct"
+      aria-label="Progression globale"
+      [attr.aria-valuetext]="p.total + ' sur 104 matchs renseignés'"
+    />
     @if (s.official > 0) {
       <div class="pronostic">
         🏟️ {{ s.official }} résultat(s) officiel(s) · Pronostics :
@@ -69,24 +74,23 @@
 
   <mat-tab-group
     class="tabs"
+    aria-label="Sections du tournoi"
     [mat-stretch-tabs]="false"
+    animationDuration="0ms"
     [selectedIndex]="selected()"
     (selectedIndexChange)="selected.set($event)"
+    wcSwipe
+    (swipeLeft)="goRelative(1)"
+    (swipeRight)="goRelative(-1)"
   >
     <mat-tab label="📋 Poules">
-      @if (selected() === 0) {
-        <wc-groups />
-      }
+      <wc-groups />
     </mat-tab>
     <mat-tab label="🥉 Meilleurs 3es">
-      @if (selected() === 1) {
-        <wc-thirds />
-      }
+      <wc-thirds />
     </mat-tab>
     <mat-tab label="🗺️ Tableau final">
-      @if (selected() === 2) {
-        <wc-knockout />
-      }
+      <wc-knockout />
     </mat-tab>
   </mat-tab-group>
-</div>
+</main>

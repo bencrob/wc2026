@@ -1,4 +1,4 @@
-<div class="bracket">
+<div class="bracket" data-no-swipe>
   @for (ph of phases; track ph.key) {
     <section class="round">
       <h3 class="round-title">{{ ph.label }}</h3>
@@ -37,6 +37,8 @@
                 <button
                   type="button"
                   [class.active]="penaltyPick(id) === 'home'"
+                  [attr.aria-pressed]="penaltyPick(id) === 'home'"
+                  [attr.aria-label]="'Vainqueur aux tirs au but : ' + name(m.home)"
                   (click)="pickWinner(id, 'home')"
                 >
                   {{ name(m.home) }}
@@ -44,6 +46,8 @@
                 <button
                   type="button"
                   [class.active]="penaltyPick(id) === 'away'"
+                  [attr.aria-pressed]="penaltyPick(id) === 'away'"
+                  [attr.aria-label]="'Vainqueur aux tirs au but : ' + name(m.away)"
                   (click)="pickWinner(id, 'away')"
                 >
                   {{ name(m.away) }}

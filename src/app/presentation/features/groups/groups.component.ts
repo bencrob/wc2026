@@ -46,10 +46,6 @@ export class GroupsComponent {
     return this.store.groups()[g].standings.reduce((s, r) => s + r.played, 0) / 2;
   }
 
-  protected tied(g: GroupId, rank: number): boolean {
-    return this.store.groups()[g].tiedRanks.has(rank);
-  }
-
   protected side(id: MatchId, side: Side): number | null {
     return this.store.effective()[id]?.[side] ?? null;
   }

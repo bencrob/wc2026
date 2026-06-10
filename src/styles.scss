@@ -82,7 +82,7 @@ body.theme-france {
   --mat-sys-tertiary: #ed2939;
   --mat-sys-on-tertiary: #ffffff;
   --mat-sys-surface-tint: #002654;
-  --wc-toolbar: linear-gradient(135deg, #002654, #0050a0);
+  --wc-toolbar: linear-gradient(135deg, #002654, #ed2939);
   --wc-stripe: linear-gradient(90deg, #002654 0 33%, #ffffff 33% 66%, #ed2939 66% 100%);
 }
 
@@ -93,7 +93,7 @@ body.theme-civ {
   --mat-sys-tertiary: #009e60;
   --mat-sys-on-tertiary: #ffffff;
   --mat-sys-surface-tint: #ef7d00;
-  --wc-toolbar: linear-gradient(135deg, #ef7d00, #f59e2e);
+  --wc-toolbar: linear-gradient(135deg, #ef7d00, #009e60);
   --wc-stripe: linear-gradient(90deg, #ef7d00 0 33%, #ffffff 33% 66%, #009e60 66% 100%);
 }
 
@@ -115,7 +115,7 @@ body.theme-espagne {
   --mat-sys-tertiary: #f1bf00;
   --mat-sys-on-tertiary: #4a3800;
   --mat-sys-surface-tint: #aa151b;
-  --wc-toolbar: linear-gradient(135deg, #c81d23, #aa151b);
+  --wc-toolbar: linear-gradient(90deg, #aa151b 0%, #f1bf00 50%, #aa151b 100%);
   --wc-stripe: linear-gradient(90deg, #aa151b 0 25%, #f1bf00 25% 75%, #aa151b 75% 100%);
 }
 
@@ -127,5 +127,14 @@ body.theme-espagne {
     U+E006E, U+E0073-E0074, U+E0077, U+E007F;
   src: url('/fonts/TwemojiCountryFlags.woff2') format('woff2');
   font-display: swap;
+}
+
+/* ----- Typographie plus grasse (look "punché", en dur) ----- */
+body {
+  font-weight: 500; // medium par défaut (au lieu de regular)
+}
+/* Libellés d'onglets en gras marqué */
+.mat-mdc-tab .mdc-tab__text-label {
+  font-weight: 700;
 }
 
