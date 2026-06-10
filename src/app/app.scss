@@ -76,6 +76,13 @@
   margin-top: 0.5rem;
 }
 
+.tab-ph {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant, #777);
+  font-size: 0.85rem;
+}
+
 @media (max-width: 599px) {
   .app-bar .title {
     font-size: 0.9rem;

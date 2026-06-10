@@ -13,4 +13,6 @@ export const THEMES: readonly AppTheme[] = [
   { id: 'civ', label: "🇨🇮 Côte d'Ivoire" },
   { id: 'portugal', label: '🇵🇹 Portugal' },
   { id: 'espagne', label: '🇪🇸 Espagne' },
+  { id: 'usa', label: '🇺🇸 États-Unis' },
+  { id: 'maroc', label: '🇲🇦 Maroc' },
 ];

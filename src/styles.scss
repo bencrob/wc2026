@@ -119,6 +119,28 @@ body.theme-espagne {
   --wc-stripe: linear-gradient(90deg, #aa151b 0 25%, #f1bf00 25% 75%, #aa151b 75% 100%);
 }
 
+/* 🇺🇸 États-Unis — bleu / blanc / rouge */
+body.theme-usa {
+  --mat-sys-primary: #3c3b6e;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-tertiary: #b22234;
+  --mat-sys-on-tertiary: #ffffff;
+  --mat-sys-surface-tint: #3c3b6e;
+  --wc-toolbar: linear-gradient(135deg, #3c3b6e, #b22234);
+  --wc-stripe: linear-gradient(90deg, #b22234 0 33%, #ffffff 33% 66%, #3c3b6e 66% 100%);
+}
+
+/* 🇲🇦 Maroc — rouge / vert */
+body.theme-maroc {
+  --mat-sys-primary: #c1272d;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-tertiary: #006233;
+  --mat-sys-on-tertiary: #ffffff;
+  --mat-sys-surface-tint: #c1272d;
+  --wc-toolbar: linear-gradient(135deg, #c1272d, #006233);
+  --wc-stripe: linear-gradient(90deg, #c1272d 0 50%, #006233 50% 100%);
+}
+
 /* Drapeaux nationaux : webfont auto-hébergée (Windows ne rend pas les emojis-drapeaux).
    Servie depuis public/fonts → mise en cache par le service worker (offline réel). */
 @font-face {
