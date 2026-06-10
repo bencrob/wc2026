@@ -1,9 +1,3 @@
-<p class="hint">
-  Saisissez les scores ; les vainqueurs se propagent automatiquement. En cas de
-  match nul, choisissez le vainqueur aux tirs au but. Un match avec résultat
-  officiel est verrouillé.
-</p>
-
 <div class="bracket">
   @for (ph of phases; track ph.key) {
     <section class="round">
@@ -15,7 +9,7 @@
             <div class="side" [class.winner]="isWinner(id, m.home)">
               <wc-flag [teamId]="m.home" />
               <span class="ko-name" [class.tbd]="!m.home">
-                {{ name(m.home) ?? 'À déterminer' }}
+                {{ name(m.home) ?? placeholder(id, 'home') }}
               </span>
               <wc-score-input
                 [value]="sideValue(id, 'home')"
@@ -27,7 +21,7 @@
             <div class="side" [class.winner]="isWinner(id, m.away)">
               <wc-flag [teamId]="m.away" />
               <span class="ko-name" [class.tbd]="!m.away">
-                {{ name(m.away) ?? 'À déterminer' }}
+                {{ name(m.away) ?? placeholder(id, 'away') }}
               </span>
               <wc-score-input
                 [value]="sideValue(id, 'away')"

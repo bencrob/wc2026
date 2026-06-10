@@ -2,15 +2,10 @@
   display: block;
 }
 
-.status {
-  padding: 0.6rem 0.8rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.85rem;
-  background: color-mix(in srgb, #0dcaf0 18%, transparent);
-  &.resolved {
-    background: color-mix(in srgb, #198754 18%, transparent);
-  }
+.hint-empty {
+  margin: 0 0 1rem;
+  font-size: 0.82rem;
+  color: var(--mat-sys-on-surface-variant, #666);
 }
 
 .thirds {

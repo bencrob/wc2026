@@ -67,15 +67,26 @@
     }
   </section>
 
-  <mat-tab-group class="tabs" [mat-stretch-tabs]="false">
+  <mat-tab-group
+    class="tabs"
+    [mat-stretch-tabs]="false"
+    [selectedIndex]="selected()"
+    (selectedIndexChange)="selected.set($event)"
+  >
     <mat-tab label="📋 Poules">
-      <ng-template matTabContent><wc-groups /></ng-template>
+      @if (selected() === 0) {
+        <wc-groups />
+      }
     </mat-tab>
     <mat-tab label="🥉 Meilleurs 3es">
-      <ng-template matTabContent><wc-thirds /></ng-template>
+      @if (selected() === 1) {
+        <wc-thirds />
+      }
     </mat-tab>
     <mat-tab label="🗺️ Tableau final">
-      <ng-template matTabContent><wc-knockout /></ng-template>
+      @if (selected() === 2) {
+        <wc-knockout />
+      }
     </mat-tab>
   </mat-tab-group>
 </div>

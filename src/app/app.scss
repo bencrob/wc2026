@@ -74,3 +74,15 @@
 .tabs {
   margin-top: 0.5rem;
 }
+
+@media (max-width: 599px) {
+  .app-bar .title {
+    font-size: 0.9rem;
+  }
+  .container {
+    padding: 0.5rem;
+  }
+  .progress .progress-label {
+    font-size: 0.78rem;
+  }
+}

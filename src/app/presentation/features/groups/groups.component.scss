@@ -93,3 +93,17 @@ mat-expansion-panel {
   color: var(--mat-sys-on-surface-variant, #777);
   margin-bottom: 0.25rem;
 }
+
+@media (max-width: 599px) {
+  .standings {
+    font-size: 0.76rem;
+    th,
+    td {
+      padding: 0.18rem 0.15rem;
+    }
+  }
+  .fixture {
+    gap: 0.3rem;
+    font-size: 0.85rem;
+  }
+}

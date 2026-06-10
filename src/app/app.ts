@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -31,6 +31,8 @@ import { ThirdsComponent } from './presentation/features/thirds/thirds.component
   styleUrl: './app.scss',
 })
 export class App {
+  /** Onglet actif — sert à ne monter QUE le contenu visible (perf : pas de re-render des tables masquées). */
+  protected readonly selected = signal(0);
   protected readonly store = inject(TournamentStore);
   protected readonly theme = inject(ThemeService);
   private readonly fileIo = inject(FILE_IO);

@@ -9,22 +9,23 @@ import { FlagComponent } from '../../ui/flag.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FlagComponent],
   template: `
-    <div class="status" [class.resolved]="store.thirdResolved()">
-      @if (store.thirdResolved()) {
-        12 groupes complets — les 8 meilleurs troisièmes sont qualifiés et placés
-        dans le tableau final.
-      } @else {
-        Classement provisoire — {{ completeCount() }}/12 groupes complets. La
-        qualification des 3es se fige à 12/12.
-      }
-    </div>
+    @if (!store.thirdResolved()) {
+      <p class="hint-empty">
+        Classement provisoire — {{ completeCount() }}/12 groupes complets. Les 8
+        meilleurs 3es se figent une fois toutes les poules terminées.
+      </p>
+    }
 
     <table class="thirds">
       <thead>
         <tr>
-          <th class="start">#</th>
-          <th class="start">Équipe</th>
-          <th>Gr.</th><th>Pts</th><th>Diff</th><th>BP</th><th>Créneau R32</th>
+          <th class="start" scope="col">#</th>
+          <th class="start" scope="col">Équipe</th>
+          <th scope="col">Gr.</th>
+          <th scope="col">Pts</th>
+          <th scope="col">Diff</th>
+          <th scope="col">BP</th>
+          <th scope="col">Créneau R32</th>
         </tr>
       </thead>
       <tbody>

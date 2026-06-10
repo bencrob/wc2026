@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TournamentStore } from '../../../application/tournament.store';
-import { KO_PHASES } from '../../../domain/data/knockout-structure';
+import {
+  BRACKET_LINKS,
+  KO_PHASES,
+  R32_SLOTS,
+} from '../../../domain/data/knockout-structure';
 import { SCHEDULE } from '../../../domain/data/schedule';
 import { teamName } from '../../../domain/data/teams';
 import {
@@ -9,7 +13,33 @@ import {
   MatchId,
   Score,
   Side,
+  SlotSource,
 } from '../../../domain/models';
+
+/** Décrit la provenance d'un côté de match (pour afficher au lieu de « À déterminer »). */
+function describeSource(s: SlotSource): string {
+  if (s.kind === 'winner') return `1ᵉʳ groupe ${s.group}`;
+  if (s.kind === 'runnerUp') return `2ᵉ groupe ${s.group}`;
+  return 'Meilleur 3ᵉ';
+}
+
+/** Label de provenance par emplacement `${matchId}-${side}` (R32 = chapeau, R16+ = vainqueur/perdant). */
+const FEEDER_LABEL: Record<string, string> = (() => {
+  const m: Record<string, string> = {};
+  for (const slot of R32_SLOTS) {
+    m[`${slot.id}-home`] = describeSource(slot.home);
+    m[`${slot.id}-away`] = describeSource(slot.away);
+  }
+  for (const link of BRACKET_LINKS) {
+    if (link.winnerTo) {
+      m[`${link.winnerTo.match}-${link.winnerTo.side}`] = `Vainqueur M${link.match.slice(1)}`;
+    }
+    if (link.loserTo) {
+      m[`${link.loserTo.match}-${link.loserTo.side}`] = `Perdant M${link.match.slice(1)}`;
+    }
+  }
+  return m;
+})();
 import { ComparisonLineComponent } from '../../ui/comparison-line.component';
 import { FlagComponent } from '../../ui/flag.component';
 import { ScoreInputComponent } from '../../ui/score-input.component';
@@ -25,6 +55,11 @@ export class KnockoutComponent {
   protected readonly store = inject(TournamentStore);
   protected readonly phases = KO_PHASES;
   protected readonly name = teamName;
+
+  /** Nom de l'équipe si connue, sinon la provenance (« Vainqueur M74 », « 2ᵉ groupe A »…). */
+  protected placeholder(id: MatchId, side: Side): string {
+    return FEEDER_LABEL[`${id}-${side}`] ?? 'À déterminer';
+  }
 
   protected ids(from: number, to: number): MatchId[] {
     const out: MatchId[] = [];

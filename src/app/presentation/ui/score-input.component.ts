@@ -32,6 +32,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       color: var(--mat-sys-on-surface, #000);
       font: inherit;
     }
+    .score-input:focus-visible {
+      outline: 2px solid var(--mat-sys-primary, #1976d2);
+      outline-offset: 1px;
+      border-color: var(--mat-sys-primary, #1976d2);
+    }
     .score-input.locked {
       background: #e9ecef;
       color: #212529;
