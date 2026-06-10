@@ -26,6 +26,6 @@ describe('App (shell)', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.title')?.textContent).toContain('Coupe du Monde FIFA 2026');
+    expect(el.querySelector('.title')?.textContent).toContain('Pronoscup 2026');
   });
 });

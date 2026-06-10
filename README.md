@@ -1,4 +1,4 @@
-# Coupe du Monde FIFA 2026 — Pronostics
+# Pronoscup 2026
 
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)

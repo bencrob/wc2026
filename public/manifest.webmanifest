@@ -1,6 +1,6 @@
 {
-  "name": "wcng2026",
-  "short_name": "wcng2026",
+  "name": "Pronoscup 2026",
+  "short_name": "Pronoscup",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

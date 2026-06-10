@@ -11,8 +11,17 @@
 
   .title {
     margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1.05rem;
     font-weight: 700;
+  }
+
+  .brand-logo {
+    height: 1.6rem;
+    width: 1.6rem;
+    display: block;
   }
 
   // Icônes/boutons lisibles sur le bandeau coloré
