@@ -53,6 +53,9 @@ mat-expansion-panel {
   tr.qualif {
     background: var(--wc-qualified);
   }
+  tr.third {
+    background: var(--wc-third);
+  }
   .warn {
     color: #b8860b;
     cursor: help;

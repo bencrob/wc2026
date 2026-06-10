@@ -27,7 +27,7 @@
       </thead>
       <tbody>
         @for (r of store.groups()[g].standings; track r.teamId) {
-          <tr [class.qualif]="r.rank <= 2">
+          <tr [class.qualif]="r.rank <= 2" [class.third]="r.rank === 3">
             <td class="start">{{ r.rank }}</td>
             <td class="start team">
               <wc-flag [teamId]="r.teamId" />
