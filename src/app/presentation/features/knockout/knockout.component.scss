@@ -2,22 +2,31 @@
   display: block;
 }
 
-.hint {
-  font-size: 0.82rem;
-  color: var(--mat-sys-on-surface-variant, #666);
-  margin: 0 0 1rem;
+.champion-banner {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0.6rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.6rem;
+  background: var(--wc-winner);
+  color: var(--mat-sys-on-surface);
+  border: 1px solid var(--mat-sys-primary);
 }
 
+/* ---------- Arbre de bracket ---------- */
 .bracket {
   display: flex;
-  gap: 1rem;
+  gap: 1.75rem;
   overflow-x: auto;
   padding-bottom: 1rem;
-  align-items: flex-start;
+  align-items: stretch; // colonnes de même hauteur → centrage par space-around
 }
 
 .round {
-  min-width: 15rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 13rem;
   flex: 0 0 auto;
 }
 
@@ -31,21 +40,42 @@
 }
 
 .round-matches {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  justify-content: space-around; // répartit les matchs → centrés entre leurs qualifiés
 }
 
 .ko-match {
+  position: relative;
+  align-self: center;
+  width: 100%;
   border: 1px solid var(--mat-sys-outline-variant, #ddd);
   border-radius: 0.5rem;
   padding: 0.5rem;
   background: var(--mat-sys-surface-container-low, #fff);
 
-  &.attention {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 1px #dc3545 inset;
+  // Nul non tranché : état « à départager » (ambre) au lieu d'une erreur rouge
+  &.shootout-needed {
+    border-color: #f0ad4e;
+    box-shadow: 0 0 0 1px #f0ad4e inset;
   }
+}
+
+/* Connecteurs horizontaux entre colonnes (l'alignement vertical fait l'effet d'arbre) */
+.round:not(:first-of-type) .ko-match::before,
+.round:not(:last-of-type) .ko-match::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0.85rem;
+  border-top: 2px solid var(--mat-sys-outline-variant, #ccc);
+}
+.round:not(:first-of-type) .ko-match::before {
+  left: -0.85rem;
+}
+.round:not(:last-of-type) .ko-match::after {
+  right: -0.85rem;
 }
 
 .side {
@@ -104,15 +134,28 @@
   }
 }
 
-@media (max-width: 599px) {
-  .round {
-    min-width: 12rem;
-  }
-}
-
 .ko-meta {
   font-size: 0.68rem;
   color: var(--mat-sys-on-surface-variant, #777);
   margin-top: 0.35rem;
   text-align: center;
+}
+
+/* ---------- Petite finale (hors arbre) ---------- */
+.third-place {
+  margin-top: 1.5rem;
+  max-width: 16rem;
+
+  .ko-match {
+    align-self: stretch;
+  }
+}
+
+@media (max-width: 599px) {
+  .round {
+    min-width: 11rem;
+  }
+  .bracket {
+    gap: 1.25rem;
+  }
 }

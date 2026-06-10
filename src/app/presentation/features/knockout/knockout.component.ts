@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TournamentStore } from '../../../application/tournament.store';
 import {
@@ -10,11 +11,15 @@ import { teamName } from '../../../domain/data/teams';
 import {
   Comparison,
   KnockoutMatch,
+  KnockoutPhase,
   MatchId,
   Score,
   Side,
   SlotSource,
 } from '../../../domain/models';
+import { ComparisonLineComponent } from '../../ui/comparison-line.component';
+import { FlagComponent } from '../../ui/flag.component';
+import { ScoreInputComponent } from '../../ui/score-input.component';
 
 /** Décrit la provenance d'un côté de match (pour afficher au lieu de « À déterminer »). */
 function describeSource(s: SlotSource): string {
@@ -40,31 +45,74 @@ const FEEDER_LABEL: Record<string, string> = (() => {
   }
   return m;
 })();
-import { ComparisonLineComponent } from '../../ui/comparison-line.component';
-import { FlagComponent } from '../../ui/flag.component';
-import { ScoreInputComponent } from '../../ui/score-input.component';
+
+/**
+ * Nourrisseurs d'un match : FEEDERS[target] = [sourceHome, sourceAway].
+ * Reconstruit depuis BRACKET_LINKS.winnerTo (sens inverse de la propagation).
+ */
+const FEEDERS: Record<MatchId, [MatchId, MatchId]> = (() => {
+  const tmp: Record<string, { home?: MatchId; away?: MatchId }> = {};
+  for (const link of BRACKET_LINKS) {
+    if (!link.winnerTo) continue;
+    const t = link.winnerTo.match;
+    (tmp[t] ??= {})[link.winnerTo.side] = link.match;
+  }
+  const out: Record<MatchId, [MatchId, MatchId]> = {};
+  for (const [target, sides] of Object.entries(tmp)) {
+    if (sides.home && sides.away) out[target] = [sides.home, sides.away];
+  }
+  return out;
+})();
+
+/**
+ * Index d'arbre par parcours infixe depuis la finale (M104).
+ * Trier une colonne par cet index aligne chaque match au milieu de ses 2 qualifiés.
+ */
+const ORDER_INDEX: Record<MatchId, number> = (() => {
+  const idx: Record<MatchId, number> = {};
+  let n = 0;
+  const visit = (node: MatchId): void => {
+    const feeders = FEEDERS[node];
+    if (feeders) visit(feeders[0]);
+    idx[node] = n++;
+    if (feeders) visit(feeders[1]);
+  };
+  visit('M104');
+  return idx;
+})();
+
+const THIRD_PLACE_ID: MatchId = 'M103';
 
 @Component({
   selector: 'wc-knockout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FlagComponent, ScoreInputComponent, ComparisonLineComponent],
+  imports: [NgTemplateOutlet, FlagComponent, ScoreInputComponent, ComparisonLineComponent],
   templateUrl: './knockout.component.html',
   styleUrl: './knockout.component.scss',
 })
 export class KnockoutComponent {
   protected readonly store = inject(TournamentStore);
-  protected readonly phases = KO_PHASES;
+  /** Tours de l'arbre (hors petite finale, rendue à part). */
+  protected readonly bracketPhases = KO_PHASES.filter((p) => p.key !== 'P3');
+  protected readonly thirdPlaceId = THIRD_PLACE_ID;
   protected readonly name = teamName;
+
+  /** Ids d'un tour, ordonnés selon l'arbre (qualifiés adjacents → match centré). */
+  protected orderedIds(phase: KnockoutPhase): MatchId[] {
+    const ids: MatchId[] = [];
+    for (let n = phase.from; n <= phase.to; n++) ids.push('M' + n);
+    return ids.sort((a, b) => (ORDER_INDEX[a] ?? 0) - (ORDER_INDEX[b] ?? 0));
+  }
 
   /** Nom de l'équipe si connue, sinon la provenance (« Vainqueur M74 », « 2ᵉ groupe A »…). */
   protected placeholder(id: MatchId, side: Side): string {
     return FEEDER_LABEL[`${id}-${side}`] ?? 'À déterminer';
   }
 
-  protected ids(from: number, to: number): MatchId[] {
-    const out: MatchId[] = [];
-    for (let n = from; n <= to; n++) out.push('M' + n);
-    return out;
+  /** Champion = vainqueur de la finale (M104) une fois décidée. */
+  protected champion(): string | null {
+    const final = this.store.knockout()['M104'];
+    return final?.decided ? this.name(final.winner) : null;
   }
 
   protected match(id: MatchId): KnockoutMatch {

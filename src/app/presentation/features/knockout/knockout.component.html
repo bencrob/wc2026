@@ -1,78 +1,92 @@
+@if (champion(); as c) {
+  <div class="champion-banner">🏆 Champion : <strong>{{ c }}</strong></div>
+}
+
 <div class="bracket" data-no-swipe>
-  @for (ph of phases; track ph.key) {
-    <section class="round">
+  @for (ph of bracketPhases; track ph.key) {
+    <section class="round" [attr.data-round]="ph.key">
       <h3 class="round-title">{{ ph.label }}</h3>
       <div class="round-matches">
-        @for (id of ids(ph.from, ph.to); track id) {
-          @let m = match(id);
-          <article class="ko-match" [class.attention]="m.needsAttention">
-            <div class="side" [class.winner]="isWinner(id, m.home)">
-              <wc-flag [teamId]="m.home" />
-              <span class="ko-name" [class.tbd]="!m.home">
-                {{ name(m.home) ?? placeholder(id, 'home') }}
-              </span>
-              <wc-score-input
-                [value]="sideValue(id, 'home')"
-                [disabled]="!store.isEditable(id) || !m.home || !m.away"
-                ariaLabel="Score domicile"
-                (valueChange)="set(id, 'home', $event)"
-              />
-            </div>
-            <div class="side" [class.winner]="isWinner(id, m.away)">
-              <wc-flag [teamId]="m.away" />
-              <span class="ko-name" [class.tbd]="!m.away">
-                {{ name(m.away) ?? placeholder(id, 'away') }}
-              </span>
-              <wc-score-input
-                [value]="sideValue(id, 'away')"
-                [disabled]="!store.isEditable(id) || !m.home || !m.away"
-                ariaLabel="Score extérieur"
-                (valueChange)="set(id, 'away', $event)"
-              />
-            </div>
-
-            @if (showPenalty(id)) {
-              <div class="pen">
-                <span class="pen-label">Tirs au but :</span>
-                <button
-                  type="button"
-                  [class.active]="penaltyPick(id) === 'home'"
-                  [attr.aria-pressed]="penaltyPick(id) === 'home'"
-                  [attr.aria-label]="'Vainqueur aux tirs au but : ' + name(m.home)"
-                  (click)="pickWinner(id, 'home')"
-                >
-                  {{ name(m.home) }}
-                </button>
-                <button
-                  type="button"
-                  [class.active]="penaltyPick(id) === 'away'"
-                  [attr.aria-pressed]="penaltyPick(id) === 'away'"
-                  [attr.aria-label]="'Vainqueur aux tirs au but : ' + name(m.away)"
-                  (click)="pickWinner(id, 'away')"
-                >
-                  {{ name(m.away) }}
-                </button>
-              </div>
-            }
-
-            <div class="ko-meta">
-              Match {{ id.slice(1) }}
-              @if (schedule(id); as s) {
-                · {{ s.date }} · {{ s.venue }}
-              }
-            </div>
-
-            @if (official(id); as off) {
-              <wc-comparison-line
-                [official]="off"
-                [prediction]="comparison(id)?.prediction ?? null"
-                [verdict]="comparison(id)?.verdict ?? null"
-                [koWinnerName]="koWinnerName(id)"
-              />
-            }
-          </article>
+        @for (id of orderedIds(ph); track id) {
+          <ng-container *ngTemplateOutlet="matchTpl; context: { id }" />
         }
       </div>
     </section>
   }
 </div>
+
+<!-- Match pour la 3e place : hors de l'arbre (nourri par les perdants des demies) -->
+<section class="third-place">
+  <h3 class="round-title">🥉 Match pour la 3e place</h3>
+  <ng-container *ngTemplateOutlet="matchTpl; context: { id: thirdPlaceId }" />
+</section>
+
+<ng-template #matchTpl let-id="id">
+  @let m = match(id);
+  <article class="ko-match" [class.shootout-needed]="m.needsAttention">
+    <div class="side" [class.winner]="isWinner(id, m.home)">
+      <wc-flag [teamId]="m.home" />
+      <span class="ko-name" [class.tbd]="!m.home">
+        {{ name(m.home) ?? placeholder(id, 'home') }}
+      </span>
+      <wc-score-input
+        [value]="sideValue(id, 'home')"
+        [disabled]="!store.isEditable(id) || !m.home || !m.away"
+        ariaLabel="Score domicile"
+        (valueChange)="set(id, 'home', $event)"
+      />
+    </div>
+    <div class="side" [class.winner]="isWinner(id, m.away)">
+      <wc-flag [teamId]="m.away" />
+      <span class="ko-name" [class.tbd]="!m.away">
+        {{ name(m.away) ?? placeholder(id, 'away') }}
+      </span>
+      <wc-score-input
+        [value]="sideValue(id, 'away')"
+        [disabled]="!store.isEditable(id) || !m.home || !m.away"
+        ariaLabel="Score extérieur"
+        (valueChange)="set(id, 'away', $event)"
+      />
+    </div>
+
+    @if (showPenalty(id)) {
+      <div class="pen">
+        <span class="pen-label">Tirs au but :</span>
+        <button
+          type="button"
+          [class.active]="penaltyPick(id) === 'home'"
+          [attr.aria-pressed]="penaltyPick(id) === 'home'"
+          [attr.aria-label]="'Vainqueur aux tirs au but : ' + name(m.home)"
+          (click)="pickWinner(id, 'home')"
+        >
+          {{ name(m.home) }}
+        </button>
+        <button
+          type="button"
+          [class.active]="penaltyPick(id) === 'away'"
+          [attr.aria-pressed]="penaltyPick(id) === 'away'"
+          [attr.aria-label]="'Vainqueur aux tirs au but : ' + name(m.away)"
+          (click)="pickWinner(id, 'away')"
+        >
+          {{ name(m.away) }}
+        </button>
+      </div>
+    }
+
+    <div class="ko-meta">
+      Match {{ id.slice(1) }}
+      @if (schedule(id); as s) {
+        · {{ s.date }} · {{ s.venue }}
+      }
+    </div>
+
+    @if (official(id); as off) {
+      <wc-comparison-line
+        [official]="off"
+        [prediction]="comparison(id)?.prediction ?? null"
+        [verdict]="comparison(id)?.verdict ?? null"
+        [koWinnerName]="koWinnerName(id)"
+      />
+    }
+  </article>
+</ng-template>
