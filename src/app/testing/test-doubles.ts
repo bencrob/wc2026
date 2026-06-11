@@ -1,7 +1,19 @@
 import { DraftScoreMap, ScoreMap } from '../domain/models';
+import { ClockPort } from '../domain/ports/clock.port';
 import { FileIoPort } from '../domain/ports/file-io.port';
 import { OfficialResultsPort } from '../domain/ports/official-results.port';
 import { PersistencePort } from '../domain/ports/persistence.port';
+
+/** Horloge déterministe : `now` fixe et réglable (substitut de l'horloge système). */
+export class ClockStub implements ClockPort {
+  constructor(private current = 0) {}
+  now(): number {
+    return this.current;
+  }
+  set(ms: number): void {
+    this.current = ms;
+  }
+}
 
 /** Persistance en mémoire (substitut de LocalStoragePersistence). */
 export class PersistenceStub implements PersistencePort {

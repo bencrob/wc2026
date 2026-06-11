@@ -1,10 +1,22 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
 import { MatchAccessPolicy } from '../domain/policies/match-access.policy';
+import { SCHEDULE } from '../domain/data/schedule';
 import { DraftScore, DraftScoreMap, MatchId, ScoreMap, Side } from '../domain/models';
 import { TournamentEngine } from '../domain/engines/tournament.engine';
 import { ScoreMapValidator } from '../domain/validation/score-map.validator';
 import { Result, ok } from '../domain/validation/result';
-import { FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './tokens';
+import { CLOCK, FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './tokens';
+
+/** Cadence de réévaluation des verrous horaires (UI passe en lecture seule au coup d'envoi). */
+const CLOCK_TICK_MS = 30_000;
+
+/** Coup d'envoi du match en ms epoch, ou `undefined` si non renseigné/illisible. */
+function kickoffMs(id: MatchId): number | undefined {
+  const iso = SCHEDULE[id]?.kickoff;
+  if (iso === undefined) return undefined;
+  const ms = Date.parse(iso);
+  return Number.isNaN(ms) ? undefined : ms;
+}
 
 /**
  * État applicatif réactif.
@@ -19,6 +31,7 @@ export class TournamentStore {
   private readonly persistence = inject(PERSISTENCE);
   private readonly officialSrc = inject(OFFICIAL_RESULTS);
   private readonly fileIo = inject(FILE_IO);
+  private readonly clock = inject(CLOCK);
 
   private readonly engine = new TournamentEngine();
   private readonly access = new MatchAccessPolicy();
@@ -26,6 +39,8 @@ export class TournamentStore {
 
   private readonly _predictions = signal<DraftScoreMap>(this.persistence.loadPredictions());
   private readonly _official = signal<ScoreMap>({});
+  /** Instant courant (ms epoch), réévalué périodiquement pour verrouiller au coup d'envoi. */
+  private readonly _now = signal(this.clock.now());
 
   readonly runtime = computed(() => this.engine.recompute(this._predictions(), this._official()));
   readonly groups = computed(() => this.runtime().groups);
@@ -42,11 +57,14 @@ export class TournamentStore {
   constructor() {
     // Persistance réactive des pronostics (les officiels viennent du serveur, non sauvegardés).
     effect(() => this.persistence.savePredictions(this._predictions()));
+    // Tic d'horloge : fait basculer les matchs en lecture seule dès leur coup d'envoi.
+    const tick = setInterval(() => this._now.set(this.clock.now()), CLOCK_TICK_MS);
+    inject(DestroyRef).onDestroy(() => clearInterval(tick));
   }
 
-  /** Un match avec résultat officiel est en lecture seule. */
+  /** Un match est en lecture seule s'il a un résultat officiel OU si son coup d'envoi est passé. */
   isEditable(id: MatchId): boolean {
-    return this.access.isEditable(id, this._official());
+    return this.access.isEditable(id, this._official(), kickoffMs(id), this._now());
   }
 
   /** Charge les résultats officiels (serveur) — à appeler au démarrage. */

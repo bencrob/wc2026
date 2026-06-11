@@ -1,28 +1,32 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, test } from 'vitest';
+import { SCHEDULE } from '../domain/data/schedule';
 import { GroupId, ScoreMap } from '../domain/models';
 import { required } from '../domain/util/required';
-import { FileIoSpy, OfficialResultsStub, PersistenceStub } from '../testing/test-doubles';
-import { FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './tokens';
+import { ClockStub, FileIoSpy, OfficialResultsStub, PersistenceStub } from '../testing/test-doubles';
+import { CLOCK, FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './tokens';
 import { TournamentStore } from './tournament.store';
 
 interface Harness {
   store: TournamentStore;
   persistence: PersistenceStub;
   fileIo: FileIoSpy;
+  clock: ClockStub;
 }
 
-function configure(opts: { predictions?: ScoreMap; official?: ScoreMap } = {}): Harness {
+function configure(opts: { predictions?: ScoreMap; official?: ScoreMap; now?: number } = {}): Harness {
   const persistence = new PersistenceStub(opts.predictions ?? {});
   const fileIo = new FileIoSpy();
+  const clock = new ClockStub(opts.now ?? 0);
   TestBed.configureTestingModule({
     providers: [
       { provide: PERSISTENCE, useValue: persistence },
       { provide: OFFICIAL_RESULTS, useValue: new OfficialResultsStub(opts.official ?? {}) },
       { provide: FILE_IO, useValue: fileIo },
+      { provide: CLOCK, useValue: clock },
     ],
   });
-  return { store: TestBed.inject(TournamentStore), persistence, fileIo };
+  return { store: TestBed.inject(TournamentStore), persistence, fileIo, clock };
 }
 
 function pointsOf(store: TournamentStore, teamId: string): number {
@@ -118,6 +122,25 @@ describe('TournamentStore', () => {
       expect(store.isEditable('M2')).toBe(true);
       await store.loadOfficial();
       expect(store.isEditable('M1')).toBe(false);
+    });
+
+    test('éditable avant le coup d’envoi', () => {
+      const kickoff = Date.parse(required(SCHEDULE['M1']?.kickoff, 'kickoff M1'));
+      const { store } = configure({ now: kickoff - 60_000 });
+      expect(store.isEditable('M1')).toBe(true);
+    });
+
+    test('verrouillé une fois le coup d’envoi passé', () => {
+      const kickoff = Date.parse(required(SCHEDULE['M1']?.kickoff, 'kickoff M1'));
+      const { store } = configure({ now: kickoff + 60_000 });
+      expect(store.isEditable('M1')).toBe(false);
+    });
+
+    test('refuse la saisie sur un match déjà commencé', () => {
+      const kickoff = Date.parse(required(SCHEDULE['M1']?.kickoff, 'kickoff M1'));
+      const { store } = configure({ now: kickoff + 60_000 });
+      store.setScore('M1', 'home', 3);
+      expect(store.effective()['M1']).toBeUndefined();
     });
   });
 
