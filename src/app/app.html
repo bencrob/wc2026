@@ -62,18 +62,20 @@
       aria-label="Progression globale"
       [attr.aria-valuetext]="progressAria()"
     />
-    @if (hasOfficial()) {
-      <div class="pronostic">
-        🏟️ {{ s.official }} résultat(s) officiel(s) · Pronostics :
+    <div class="pronostic">
+      <span class="score">🏆 Mon score : {{ s.points }} pt(s)</span>
+      @if (hasOfficial()) {
+        · 🏟️ {{ s.official }} résultat(s) officiel(s) :
         <span class="ok">{{ s.exact }} exact(s)</span> ·
         <span class="mid">{{ s.outcome }} bon(s) résultat(s)</span> ·
         <span class="ko">{{ s.wrong }} raté(s)</span>
         @if (s.noPrediction) {
           · <span class="muted">{{ s.noPrediction }} sans prono</span>
         }
-        · <span class="score">🏆 {{ s.points }} pt(s)</span>
-      </div>
-    }
+      } @else {
+        <span class="muted">· en attente des premiers résultats officiels</span>
+      }
+    </div>
   </section>
 
   <mat-tab-group
