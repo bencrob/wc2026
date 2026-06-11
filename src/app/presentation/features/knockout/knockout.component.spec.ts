@@ -1,16 +1,30 @@
-import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { TournamentStore } from '../../../application/tournament.store';
 import { FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from '../../../application/tokens';
 import { GROUP_FIXTURES } from '../../../domain/data/fixtures';
-import { KO_MATCH_IDS, KO_PHASES } from '../../../domain/data/knockout-structure';
-import { Score } from '../../../domain/models';
-import {
-  InMemoryPersistence,
-  NoopFileIo,
-  StaticOfficialResultsProvider,
-} from '../../../testing/test-doubles';
+import { KO_MATCH_IDS } from '../../../domain/data/knockout-structure';
+import { MatchId, Score, Side } from '../../../domain/models';
+import { required } from '../../../domain/util/required';
+import { FileIoSpy, OfficialResultsStub, PersistenceStub } from '../../../testing/test-doubles';
 import { KnockoutComponent } from './knockout.component';
+
+interface RoundVm {
+  key: string;
+  label: string;
+  matches: { id: MatchId }[];
+}
+interface BracketVm {
+  rounds: RoundVm[];
+  thirdPlace: { id: MatchId };
+  champion: string | null;
+  runnerUp: string | null;
+}
+interface KnockoutInternals {
+  bracketVm(): BracketVm;
+  set(id: MatchId, side: Side, value: number | null): void;
+  pickWinner(id: MatchId, side: Side): void;
+}
 
 const suffix = (teamId: string): number => Number(teamId.slice(1));
 
@@ -24,54 +38,83 @@ function fullScores(): Record<string, Score> {
   return m;
 }
 
-function setup() {
+interface Harness {
+  store: TournamentStore;
+  fixture: ComponentFixture<KnockoutComponent>;
+  comp: KnockoutInternals;
+}
+
+function setup(): Harness {
   TestBed.configureTestingModule({
     imports: [KnockoutComponent],
     providers: [
-      { provide: PERSISTENCE, useValue: new InMemoryPersistence() },
-      { provide: OFFICIAL_RESULTS, useValue: new StaticOfficialResultsProvider() },
-      { provide: FILE_IO, useValue: new NoopFileIo() },
+      { provide: PERSISTENCE, useValue: new PersistenceStub() },
+      { provide: OFFICIAL_RESULTS, useValue: new OfficialResultsStub() },
+      { provide: FILE_IO, useValue: new FileIoSpy() },
     ],
   });
   const store = TestBed.inject(TournamentStore);
   const fixture = TestBed.createComponent(KnockoutComponent);
   fixture.detectChanges();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return { store, fixture, comp: fixture.componentInstance as any };
+  return { store, fixture, comp: fixture.componentInstance as unknown as KnockoutInternals };
 }
 
-const phase = (key: string) => KO_PHASES.find((p) => p.key === key)!;
+const idsOf = (vm: BracketVm, key: string): MatchId[] =>
+  required(
+    vm.rounds.find((r) => r.key === key),
+    `tour ${key}`,
+  ).matches.map((m) => m.id);
 
-describe('KnockoutComponent — arbre', () => {
+describe('KnockoutComponent', () => {
   beforeEach(() => TestBed.resetTestingModule());
 
-  it('ordonne les 16es selon l’arbre (qualifiés adjacents)', () => {
-    const { comp } = setup();
-    expect(comp.orderedIds(phase('R32')).slice(0, 4)).toEqual(['M74', 'M77', 'M73', 'M75']);
+  describe('bracketVm', () => {
+    test('ordonne les 16es selon l’arbre (qualifiés adjacents)', () => {
+      const { comp } = setup();
+      expect(idsOf(comp.bracketVm(), 'R32').slice(0, 4)).toEqual(['M74', 'M77', 'M73', 'M75']);
+    });
+
+    test('ordonne les 8es selon l’arbre', () => {
+      const { comp } = setup();
+      expect(idsOf(comp.bracketVm(), 'R16')).toEqual([
+        'M89', 'M90', 'M93', 'M94', 'M91', 'M92', 'M95', 'M96',
+      ]);
+    });
+
+    test('exclut la petite finale (M103) des colonnes et l’expose à part', () => {
+      const { comp } = setup();
+      const vm = comp.bracketVm();
+      expect(vm.rounds.some((r) => r.key === 'P3')).toBe(false);
+      expect(vm.thirdPlace.id).toBe('M103');
+    });
+
+    test('expose le champion une fois la finale décidée', () => {
+      const { store, fixture, comp } = setup();
+      expect(comp.bracketVm().champion).toBeNull();
+
+      expect(store.importPredictions({ version: 1, scores: fullScores() }).ok).toBe(true);
+      fixture.detectChanges();
+
+      expect(comp.bracketVm().champion).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.champion-banner')).toBeTruthy();
+    });
   });
 
-  it('ordonne les 8es selon l’arbre', () => {
-    const { comp } = setup();
-    expect(comp.orderedIds(phase('R16'))).toEqual([
-      'M89', 'M90', 'M93', 'M94', 'M91', 'M92', 'M95', 'M96',
-    ]);
+  describe('set', () => {
+    test('reporte la saisie dans le store', () => {
+      const { store, comp } = setup();
+      comp.set('M73', 'home', 2);
+      expect(store.effective()['M73']).toEqual({ home: 2 });
+    });
   });
 
-  it('exclut la petite finale (M103) des colonnes de l’arbre', () => {
-    const { comp } = setup();
-    expect(comp.bracketPhases.some((p: { key: string }) => p.key === 'P3')).toBe(false);
-    expect(comp.thirdPlaceId).toBe('M103');
-  });
-
-  it('affiche le champion une fois la finale décidée', () => {
-    const { store, fixture, comp } = setup();
-    expect(comp.champion()).toBeNull();
-
-    const res = store.importPredictions({ version: 1, scores: fullScores() });
-    expect(res.ok).toBe(true);
-    fixture.detectChanges();
-
-    expect(comp.champion()).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('.champion-banner')).toBeTruthy();
+  describe('pickWinner', () => {
+    test('désigne le vainqueur aux tirs au but sur un nul KO', () => {
+      const { store, comp } = setup();
+      comp.set('M73', 'home', 1);
+      comp.set('M73', 'away', 1);
+      comp.pickWinner('M73', 'home');
+      expect(store.effective()['M73']).toEqual({ home: 1, away: 1, winner: 'home' });
+    });
   });
 });

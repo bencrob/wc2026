@@ -1,15 +1,15 @@
-import { ScoreMap } from '../domain/models';
+import { DraftScoreMap, ScoreMap } from '../domain/models';
 import { FileIoPort } from '../domain/ports/file-io.port';
 import { OfficialResultsPort } from '../domain/ports/official-results.port';
 import { PersistencePort } from '../domain/ports/persistence.port';
 
-/** Persistance en mémoire (substitut LSP de LocalStoragePersistence). */
-export class InMemoryPersistence implements PersistencePort {
-  constructor(private store: ScoreMap = {}) {}
-  loadPredictions(): ScoreMap {
+/** Persistance en mémoire (substitut de LocalStoragePersistence). */
+export class PersistenceStub implements PersistencePort {
+  constructor(private store: DraftScoreMap = {}) {}
+  loadPredictions(): DraftScoreMap {
     return this.store;
   }
-  savePredictions(map: ScoreMap): void {
+  savePredictions(map: DraftScoreMap): void {
     this.store = map;
   }
   clearPredictions(): void {
@@ -17,21 +17,22 @@ export class InMemoryPersistence implements PersistencePort {
   }
 }
 
-/** Source officielle statique (substitut LSP de RemoteOfficialResultsProvider). */
-export class StaticOfficialResultsProvider implements OfficialResultsPort {
-  constructor(public results: ScoreMap = {}) {}
+/** Source officielle statique (substitut de RemoteOfficialResultsProvider). */
+export class OfficialResultsStub implements OfficialResultsPort {
+  constructor(private readonly results: ScoreMap = {}) {}
   fetch(): Promise<ScoreMap> {
     return Promise.resolve(this.results);
   }
 }
 
-/** I/O fichier sans effet (capture les exports pour assertion). */
-export class NoopFileIo implements FileIoPort {
+/** I/O fichier espionné : capture les exports, fournit un texte d'import. */
+export class FileIoSpy implements FileIoPort {
   readonly downloads: { filename: string; content: string }[] = [];
+  nextText = '';
   download(filename: string, content: string): void {
     this.downloads.push({ filename, content });
   }
   readText(): Promise<string> {
-    return Promise.resolve('');
+    return Promise.resolve(this.nextText);
   }
 }
