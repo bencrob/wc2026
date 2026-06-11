@@ -78,14 +78,9 @@ export const TEAM_BY_ID: ReadonlyMap<TeamId, Team> = new Map(
   TEAMS.map((t) => [t.id, t]),
 );
 
-export const TEAMS_BY_GROUP: Readonly<Record<GroupId, readonly TeamId[]>> =
-  GROUPS.reduce(
-    (acc, g) => {
-      acc[g] = TEAMS.filter((t) => t.groupId === g).map((t) => t.id);
-      return acc;
-    },
-    {} as Record<GroupId, TeamId[]>,
-  );
+export const TEAMS_BY_GROUP: ReadonlyMap<GroupId, readonly TeamId[]> = new Map(
+  GROUPS.map((g) => [g, TEAMS.filter((t) => t.groupId === g).map((t) => t.id)]),
+);
 
 /** Nom d'équipe (ou null si id absent). */
 export function teamName(id: TeamId | null | undefined): string | null {

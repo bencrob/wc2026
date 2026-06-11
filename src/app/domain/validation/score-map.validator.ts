@@ -5,7 +5,8 @@ import { err, ok, Result } from './result';
 export const SCHEMA_VERSION = 1;
 
 const ID_RE = /^M([1-9]|[1-9]\d|10[0-4])$/; // M1..M104
-const isInt = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 0;
+const isInt = (v: unknown): v is number =>
+  typeof v === 'number' && Number.isInteger(v) && v >= 0;
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null;
 

@@ -1,0 +1,33 @@
+@if (vm().provisional) {
+  <p class="hint-empty">
+    Classement provisoire — {{ vm().completeCount }}/12 groupes complets. Les 8
+    meilleurs 3es se figent une fois toutes les poules terminées.
+  </p>
+}
+
+<table class="thirds">
+  <thead>
+    <tr>
+      <th class="start" scope="col">#</th>
+      <th class="start" scope="col">Équipe</th>
+      <th scope="col">Gr.</th>
+      <th scope="col">Pts</th>
+      <th scope="col">Diff</th>
+      <th scope="col">BP</th>
+      <th scope="col">Créneau R32</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (row of vm().rows; track row.teamId) {
+      <tr [class.qualif]="row.qualified" [class.cut]="row.cut">
+        <td class="start">{{ row.rank }}</td>
+        <td class="start team"><wc-flag [teamId]="row.teamId" /> {{ row.teamId | teamName }}</td>
+        <td>{{ row.groupId }}</td>
+        <td class="pts">{{ row.points }}</td>
+        <td>{{ row.gd | signedNumber }}</td>
+        <td>{{ row.gf }}</td>
+        <td>{{ row.slotLabel }}</td>
+      </tr>
+    }
+  </tbody>
+</table>

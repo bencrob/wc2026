@@ -1,96 +1,91 @@
-@if (champion(); as c) {
+@if (bracketVm().champion; as c) {
   <div class="champion-banner">
     <span class="medal medal-gold">🏆 Champion : <strong>{{ c }}</strong></span>
-    @if (runnerUp(); as r) {
+    @if (bracketVm().runnerUp; as r) {
       <span class="medal medal-silver">🥈 Finaliste : <strong>{{ r }}</strong></span>
     }
   </div>
 }
 
 <div class="bracket" data-no-swipe>
-  @for (ph of bracketPhases; track ph.key) {
-    <section class="round" [attr.data-round]="ph.key">
-      <h3 class="round-title">{{ ph.label }}</h3>
+  @for (round of bracketVm().rounds; track round.key) {
+    <section class="round" [attr.data-round]="round.key">
+      <h3 class="round-title">{{ round.label }}</h3>
       <div class="round-matches">
-        @for (id of orderedIds(ph); track id) {
-          <ng-container *ngTemplateOutlet="matchTpl; context: { id }" />
+        @for (m of round.matches; track m.id) {
+          <ng-container *ngTemplateOutlet="matchTpl; context: { m }" />
         }
       </div>
     </section>
   }
 </div>
 
-<!-- Match pour la 3e place : hors de l'arbre (nourri par les perdants des demies) -->
+<!-- Match pour la 3e place : hors de l'arbre (perdants des demies) -->
 <section class="third-place">
   <h3 class="round-title">🥉 Match pour la 3e place</h3>
-  <ng-container *ngTemplateOutlet="matchTpl; context: { id: thirdPlaceId }" />
+  <ng-container *ngTemplateOutlet="matchTpl; context: { m: bracketVm().thirdPlace }" />
 </section>
 
-<ng-template #matchTpl let-id="id">
-  @let m = match(id);
+<ng-template #matchTpl let-m="m">
   <article class="ko-match" [class.shootout-needed]="m.needsAttention">
-    <div class="side" [class.winner]="isWinner(id, m.home)">
-      <wc-flag [teamId]="m.home" />
-      <span class="ko-name" [class.tbd]="!m.home">
-        {{ name(m.home) ?? placeholder(id, 'home') }}
-      </span>
+    <div class="side" [class.winner]="m.home.winner">
+      <wc-flag [teamId]="m.home.teamId" />
+      <span class="ko-name" [class.tbd]="m.home.tbd">{{ m.home.display }}</span>
       <wc-score-input
-        [value]="sideValue(id, 'home')"
-        [disabled]="!store.isEditable(id) || !m.home || !m.away"
+        [value]="m.home.value"
+        [disabled]="m.inputDisabled"
         ariaLabel="Score domicile"
-        (valueChange)="set(id, 'home', $event)"
+        (valueChange)="set(m.id, 'home', $event)"
       />
     </div>
-    <div class="side" [class.winner]="isWinner(id, m.away)">
-      <wc-flag [teamId]="m.away" />
-      <span class="ko-name" [class.tbd]="!m.away">
-        {{ name(m.away) ?? placeholder(id, 'away') }}
-      </span>
+    <div class="side" [class.winner]="m.away.winner">
+      <wc-flag [teamId]="m.away.teamId" />
+      <span class="ko-name" [class.tbd]="m.away.tbd">{{ m.away.display }}</span>
       <wc-score-input
-        [value]="sideValue(id, 'away')"
-        [disabled]="!store.isEditable(id) || !m.home || !m.away"
+        [value]="m.away.value"
+        [disabled]="m.inputDisabled"
         ariaLabel="Score extérieur"
-        (valueChange)="set(id, 'away', $event)"
+        (valueChange)="set(m.id, 'away', $event)"
       />
     </div>
 
-    @if (showPenalty(id)) {
+    @if (m.showPenalty) {
       <div class="pen">
         <span class="pen-label">Tirs au but :</span>
         <button
           type="button"
-          [class.active]="penaltyPick(id) === 'home'"
-          [attr.aria-pressed]="penaltyPick(id) === 'home'"
-          [attr.aria-label]="'Vainqueur aux tirs au but : ' + name(m.home)"
-          (click)="pickWinner(id, 'home')"
+          [class.active]="m.penaltyHome"
+          [attr.aria-pressed]="m.penaltyHome"
+          [attr.aria-label]="m.home.penaltyAria"
+          (click)="pickWinner(m.id, 'home')"
         >
-          {{ name(m.home) }}
+          {{ m.home.name }}
         </button>
         <button
           type="button"
-          [class.active]="penaltyPick(id) === 'away'"
-          [attr.aria-pressed]="penaltyPick(id) === 'away'"
-          [attr.aria-label]="'Vainqueur aux tirs au but : ' + name(m.away)"
-          (click)="pickWinner(id, 'away')"
+          [class.active]="m.penaltyAway"
+          [attr.aria-pressed]="m.penaltyAway"
+          [attr.aria-label]="m.away.penaltyAria"
+          (click)="pickWinner(m.id, 'away')"
         >
-          {{ name(m.away) }}
+          {{ m.away.name }}
         </button>
       </div>
     }
 
     <div class="ko-meta">
-      Match {{ id.slice(1) }}
-      @if (schedule(id); as s) {
+      {{ m.meta }}
+      @if (m.schedule; as s) {
         · {{ s.date }} · {{ s.venue }}
       }
     </div>
 
-    @if (official(id); as off) {
+    @if (m.official; as off) {
       <wc-comparison-line
         [official]="off"
-        [prediction]="comparison(id)?.prediction ?? null"
-        [verdict]="comparison(id)?.verdict ?? null"
-        [koWinnerName]="koWinnerName(id)"
+        [prediction]="m.prediction"
+        [verdict]="m.verdict"
+        [koWinnerName]="m.koWinnerName"
       />
     }
   </article>

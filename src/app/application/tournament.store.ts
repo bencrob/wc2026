@@ -1,6 +1,6 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { MatchAccessPolicy } from '../domain/policies/match-access.policy';
-import { MatchId, Score, ScoreMap, Side } from '../domain/models';
+import { DraftScore, DraftScoreMap, MatchId, ScoreMap, Side } from '../domain/models';
 import { TournamentEngine } from '../domain/engines/tournament.engine';
 import { ScoreMapValidator } from '../domain/validation/score-map.validator';
 import { Result, ok } from '../domain/validation/result';
@@ -24,7 +24,7 @@ export class TournamentStore {
   private readonly access = new MatchAccessPolicy();
   private readonly validator = new ScoreMapValidator();
 
-  private readonly _predictions = signal<ScoreMap>(this.persistence.loadPredictions());
+  private readonly _predictions = signal<DraftScoreMap>(this.persistence.loadPredictions());
   private readonly _official = signal<ScoreMap>({});
 
   readonly runtime = computed(() => this.engine.recompute(this._predictions(), this._official()));
@@ -92,28 +92,27 @@ export class TournamentStore {
 
   /** Mise à jour immuable d'un score ; tolère un côté manquant (match non saisi). */
   private applyScore(
-    map: ScoreMap,
+    map: DraftScoreMap,
     id: MatchId,
     side: Side,
     value: number | null,
-  ): ScoreMap {
-    const cur: { home?: number; away?: number; winner?: Side } = { ...map[id] };
-    if (value === null) delete cur[side];
-    else cur[side] = value;
+  ): DraftScoreMap {
+    const cur: DraftScore = { ...map[id] };
+    const home = side === 'home' ? value : (cur.home ?? null);
+    const away = side === 'away' ? value : (cur.away ?? null);
+    const isDraw = home !== null && away !== null && home === away;
+    const next: Record<MatchId, DraftScore> = { ...map };
 
-    // « winner » caduc si le match n'est plus un nul saisi des deux côtés.
-    const isDraw =
-      Number.isInteger(cur.home) && Number.isInteger(cur.away) && cur.home === cur.away;
-    if (cur.winner !== undefined && !isDraw) delete cur.winner;
-
-    const next: Record<MatchId, Score> = { ...map };
-    if (cur.home === undefined && cur.away === undefined && cur.winner === undefined) {
+    if (home === null && away === null) {
       delete next[id];
-    } else {
-      // Entrée potentiellement partielle pendant la saisie : le moteur l'ignore
-      // tant que les deux côtés ne sont pas des entiers.
-      next[id] = cur as Score;
+      return next;
     }
+    next[id] = {
+      ...(home !== null ? { home } : {}),
+      ...(away !== null ? { away } : {}),
+      // « winner » conservé seulement si le match reste un nul saisi des deux côtés.
+      ...(isDraw && cur.winner ? { winner: cur.winner } : {}),
+    };
     return next;
   }
 }

@@ -1,0 +1,19 @@
+.cmp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.74rem;
+  margin-top: 0.2rem;
+}
+.off {
+  background: #212529;
+  color: #fff;
+  padding: 0.05rem 0.4rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+.muted {
+  opacity: 0.7;
+}

@@ -1,4 +1,4 @@
-import { Score, Verdict } from '../models';
+import { DraftScore, Score, Side, Verdict } from '../models';
 
 /** Compare un pronostic à un résultat officiel (mode « jeu de pronostics »). */
 export class PredictionComparator {
@@ -8,35 +8,29 @@ export class PredictionComparator {
    *        | "wrong"   (mauvais résultat)
    *        | null      (pas de pronostic complet)
    */
-  verdict(
-    pred: Score | undefined,
-    off: Score,
-    isKnockout: boolean,
-  ): Verdict | null {
-    if (!pred || !Number.isInteger(pred.home) || !Number.isInteger(pred.away)) {
-      return null;
-    }
-    const exactScore = pred.home === off.home && pred.away === off.away;
+  verdict(pred: DraftScore | undefined, off: Score, isKnockout: boolean): Verdict | null {
+    const ph = pred?.home;
+    const pa = pred?.away;
+    if (typeof ph !== 'number' || typeof pa !== 'number') return null;
+    const exactScore = ph === off.home && pa === off.away;
 
     if (isKnockout) {
-      if (exactScore && (off.home !== off.away || pred.winner === off.winner)) {
+      if (exactScore && (off.home !== off.away || pred?.winner === off.winner)) {
         return 'exact';
       }
-      const pAdv = this.advancingSide(pred);
-      const oAdv = this.advancingSide(off);
+      const pAdv = this.advancingSide(ph, pa, pred?.winner);
+      const oAdv = this.advancingSide(off.home, off.away, off.winner);
       return pAdv && oAdv && pAdv === oAdv ? 'outcome' : 'wrong';
     }
 
     if (exactScore) return 'exact';
-    return Math.sign(pred.home - pred.away) === Math.sign(off.home - off.away)
-      ? 'outcome'
-      : 'wrong';
+    return Math.sign(ph - pa) === Math.sign(off.home - off.away) ? 'outcome' : 'wrong';
   }
 
   /** Côté qualifié : meilleur score, sinon le vainqueur aux tirs au but. */
-  private advancingSide(s: Score): 'home' | 'away' | null {
-    if (s.home > s.away) return 'home';
-    if (s.away > s.home) return 'away';
-    return s.winner ?? null;
+  private advancingSide(home: number, away: number, winner: Side | undefined): Side | null {
+    if (home > away) return 'home';
+    if (away > home) return 'away';
+    return winner ?? null;
   }
 }

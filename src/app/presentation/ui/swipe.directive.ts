@@ -22,8 +22,8 @@ export class SwipeDirective {
 
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent): void {
-    const target = event.target as HTMLElement | null;
-    if (target?.closest('[data-no-swipe]')) {
+    const target = event.target;
+    if (target instanceof Element && target.closest('[data-no-swipe]')) {
       this.tracking = false;
       return;
     }

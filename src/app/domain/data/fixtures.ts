@@ -16,7 +16,7 @@ export const GROUP_FIXTURES: readonly GroupFixture[] = (() => {
   const fixtures: GroupFixture[] = [];
   let n = 1;
   for (const g of GROUPS) {
-    const ids = TEAMS_BY_GROUP[g];
+    const ids = TEAMS_BY_GROUP.get(g) ?? [];
     ROUND_ROBIN_PATTERN.forEach((matchday, mdIdx) => {
       for (const [h, a] of matchday) {
         const home = ids[h];

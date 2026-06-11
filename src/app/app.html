@@ -7,18 +7,18 @@
   <button
     mat-icon-button
     (click)="theme.toggleDark()"
-    [attr.aria-label]="theme.dark() ? 'Mode clair' : 'Mode sombre'"
-    [title]="theme.dark() ? 'Mode clair' : 'Mode sombre'"
+    [attr.aria-label]="darkLabel()"
+    [title]="darkLabel()"
   >
-    <mat-icon>{{ theme.dark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    <mat-icon>{{ darkIcon() }}</mat-icon>
   </button>
   <button mat-icon-button [matMenuTriggerFor]="themeMenu" aria-label="Thème de couleurs" title="Thème">
     <mat-icon>palette</mat-icon>
   </button>
   <mat-menu #themeMenu="matMenu">
-    @for (t of theme.themes; track t.id) {
+    @for (t of themeItems(); track t.id) {
       <button mat-menu-item (click)="theme.set(t.id)">
-        <mat-icon>{{ theme.current() === t.id ? 'check' : 'circle' }}</mat-icon>
+        <mat-icon>{{ t.icon }}</mat-icon>
         <span>{{ t.label }}</span>
       </button>
     }
@@ -60,9 +60,9 @@
       mode="determinate"
       [value]="p.pct"
       aria-label="Progression globale"
-      [attr.aria-valuetext]="p.total + ' sur 104 matchs renseignés'"
+      [attr.aria-valuetext]="progressAria()"
     />
-    @if (s.official > 0) {
+    @if (hasOfficial()) {
       <div class="pronostic">
         🏟️ {{ s.official }} résultat(s) officiel(s) · Pronostics :
         <span class="ok">{{ s.exact }} exact(s)</span> ·
