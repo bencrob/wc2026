@@ -13,6 +13,17 @@ Pronostics de la Coupe du Monde FIFA 2026 — application Angular statique, hors
 - [[Tests et qualité]] — pyramide de tests, couverture, lint, doubles.
 - [[Déploiement]] — Vercel, PWA, mise à jour des résultats officiels.
 
+## Guidelines (en anglais)
+Règles de développement détaillées dans [guidelines/](guidelines/) :
+- [Unit testing](guidelines/01-unit-testing.guidelines.md) — Vitest, TestBed, doubles, signal inputs, logs propres.
+- [Refactoring](guidelines/02-refactoring.guidelines.md) — interfaces vs classes, ports & adapters, DI par tokens.
+- [Reusable UI](guidelines/03-reusable-ui.guidelines.md) — règles des composants `presentation/ui/`.
+- [Performance](guidelines/04-performance.guidelines.md) — pipes purs et optimisations.
+- [Signals](guidelines/05-signals.guidelines.md) — readonly, generics, computed, effects.
+- [Organization](guidelines/06-organization.guidelines.md) — couches hexagonales, règles de placement, exports.
+
+Voir aussi [CLAUDE.md](../CLAUDE.md) (guide pour les agents IA et résumé des conventions).
+
 ## Principes directeurs
 - **Une seule source de vérité saisissable** : les pronostics. Tout le reste (classements, qualifiés, bracket, comparaison) est **recalculé** → voir [[Règles techniques#État & réactivité]].
 - **Résultats officiels = données serveur saisies à la main**, prioritaires et **verrouillantes** → voir [[Règles métier#Résultats officiels & verrouillage]].
