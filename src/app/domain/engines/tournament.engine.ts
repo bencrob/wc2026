@@ -99,6 +99,7 @@ export class TournamentEngine {
       outcome: 0,
       wrong: 0,
       noPrediction: 0,
+      points: 0,
     };
     for (const id of Object.keys(official)) {
       const off = official[id];
@@ -117,6 +118,8 @@ export class TournamentEngine {
         comparison[id] = { verdict, prediction: predictions[id] ?? null };
       }
     }
+    // Barème : 3 pts par score exact, 1 pt par bon résultat (sans le score).
+    comparisonSummary.points = comparisonSummary.exact * 3 + comparisonSummary.outcome;
 
     // 6. Progression (sur scores effectifs)
     const groupsDone = countEntered(effective, GROUP_FIXTURE_IDS);

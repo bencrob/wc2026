@@ -56,6 +56,11 @@ export interface GroupFixture {
 export interface MatchSchedule {
   readonly date: string;
   readonly venue: string;
+  /**
+   * Coup d'envoi au format ISO 8601 avec fuseau (ex. `2026-06-11T19:00:00-06:00`).
+   * Optionnel : tant qu'il est absent, aucun verrou horaire ne s'applique au match.
+   */
+  readonly kickoff?: string;
 }
 
 /** Source d'un côté d'un match de 16es (R32). */
@@ -158,6 +163,8 @@ export interface ComparisonSummary {
   outcome: number;
   wrong: number;
   noPrediction: number;
+  /** Barème : 3 pts par score exact + 1 pt par bon résultat. */
+  points: number;
 }
 
 export interface Progress {

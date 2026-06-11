@@ -62,6 +62,7 @@ describe('TournamentEngine', () => {
         outcome: 1,
         wrong: 1,
         noPrediction: 1,
+        points: 4, // 1 exact (3) + 1 bon résultat (1)
       });
       expect(rt.comparison['M1']?.verdict).toBe('exact');
       expect(rt.comparison['M4']?.prediction).toBeNull();
