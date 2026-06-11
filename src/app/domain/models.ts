@@ -31,8 +31,18 @@ export interface Score {
   readonly winner?: Side;
 }
 
-/** Table des scores : clé absente = match non joué. */
+/** Table des scores validés/complets (résultats officiels). Clé absente = match non joué. */
 export type ScoreMap = Readonly<Record<MatchId, Score>>;
+
+/** Score en cours de saisie : un côté peut manquer tant que les deux ne sont pas remplis. */
+export interface DraftScore {
+  readonly home?: number;
+  readonly away?: number;
+  readonly winner?: Side;
+}
+
+/** Table des scores saisis (pronostics) : entrées potentiellement partielles. */
+export type DraftScoreMap = Readonly<Record<MatchId, DraftScore>>;
 
 /** Fixture de poule (M1..M72), généré depuis le pattern round-robin. */
 export interface GroupFixture {
@@ -46,6 +56,11 @@ export interface GroupFixture {
 export interface MatchSchedule {
   readonly date: string;
   readonly venue: string;
+  /**
+   * Coup d'envoi au format ISO 8601 avec fuseau (ex. `2026-06-11T19:00:00-06:00`).
+   * Optionnel : tant qu'il est absent, aucun verrou horaire ne s'applique au match.
+   */
+  readonly kickoff?: string;
 }
 
 /** Source d'un côté d'un match de 16es (R32). */
@@ -139,7 +154,7 @@ export type Verdict = 'exact' | 'outcome' | 'wrong';
 
 export interface Comparison {
   readonly verdict: Verdict | null;
-  readonly prediction: Score | null;
+  readonly prediction: DraftScore | null;
 }
 
 export interface ComparisonSummary {
@@ -148,6 +163,8 @@ export interface ComparisonSummary {
   outcome: number;
   wrong: number;
   noPrediction: number;
+  /** Barème : 3 pts par score exact + 1 pt par bon résultat. */
+  points: number;
 }
 
 export interface Progress {
@@ -159,13 +176,13 @@ export interface Progress {
 
 /** État dérivé complet, recalculé à chaque changement. Jamais persisté. */
 export interface RuntimeState {
-  readonly groups: Record<GroupId, GroupResult>;
+  readonly groups: ReadonlyMap<GroupId, GroupResult>;
   readonly thirdPlaceRanking: ThirdPlaceRow[];
   readonly thirdResolved: boolean;
   readonly qualifiers: Qualifiers;
   readonly thirdPlaceAssignment: Record<MatchId, TeamId>;
   readonly knockout: KnockoutBracket;
-  readonly effective: ScoreMap;
+  readonly effective: DraftScoreMap;
   readonly officialResults: ScoreMap;
   readonly comparison: Record<MatchId, Comparison>;
   readonly comparisonSummary: ComparisonSummary;

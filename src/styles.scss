@@ -60,19 +60,21 @@ body.wc-dark {
 }
 
 /* Défaut — palette complète de la v1 (bleu profond + or + vert, surlignages d'origine) */
+/* 🌈 Mondial 2026 — identité officielle « We Are 26 » :
+   spectre magenta → violet → cyan, accent doré pour le champion. */
 body.theme-default {
-  --mat-sys-primary: #0a3d62;
+  --mat-sys-primary: #7b2ff7;
   --mat-sys-on-primary: #ffffff;
-  --mat-sys-secondary: #009639;
-  --mat-sys-tertiary: #ffd166;
+  --mat-sys-secondary: #1e9bff;
+  --mat-sys-tertiary: #ffce3a;
   --mat-sys-on-tertiary: #3a2f00;
-  --mat-sys-surface-tint: #0a3d62;
-  --wc-toolbar: linear-gradient(135deg, #0a3d62, #074b78);
-  --wc-stripe: #ffd166;
-  /* surlignages exacts de la v1 */
-  --wc-qualified: #d1e7dd;
-  --wc-third: #fff3cd;
-  --wc-winner: #cfe2ff;
+  --mat-sys-surface-tint: #7b2ff7;
+  --wc-toolbar: linear-gradient(120deg, #ff2d78 0%, #7b2ff7 48%, #1e9bff 100%);
+  --wc-stripe: linear-gradient(90deg, #ff2d78 0%, #7b2ff7 50%, #1e9bff 100%);
+  /* surlignages dérivés du spectre */
+  --wc-qualified: #e8e0ff;
+  --wc-third: #ffe7f1;
+  --wc-winner: #def0ff;
 }
 
 /* 🇫🇷 Équipe de France — bleu / blanc / rouge */

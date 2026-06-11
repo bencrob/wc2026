@@ -4,10 +4,10 @@ import {
   R32_SLOTS,
 } from '../data/knockout-structure';
 import {
+  DraftScoreMap,
   KnockoutBracket,
   MatchId,
   Qualifiers,
-  ScoreMap,
   SlotSource,
   TeamId,
 } from '../models';
@@ -17,7 +17,7 @@ export class KnockoutStageEngine {
   buildAndPropagate(
     qualifiers: Qualifiers,
     thirdAssignment: Record<MatchId, TeamId>,
-    scores: ScoreMap,
+    scores: DraftScoreMap,
   ): KnockoutBracket {
     const ko: KnockoutBracket = {};
     for (const id of KO_MATCH_IDS) {
@@ -54,14 +54,16 @@ export class KnockoutStageEngine {
       if (!m) continue;
       const sc = scores[id];
       if (m.home === null || m.away === null) continue;
-      if (!sc || !Number.isInteger(sc.home) || !Number.isInteger(sc.away)) continue;
+      const home = sc?.home;
+      const away = sc?.away;
+      if (typeof home !== 'number' || typeof away !== 'number') continue;
 
-      m.homeScore = sc.home;
-      m.awayScore = sc.away;
+      m.homeScore = home;
+      m.awayScore = away;
       let winSide: 'home' | 'away';
-      if (sc.home > sc.away) winSide = 'home';
-      else if (sc.away > sc.home) winSide = 'away';
-      else if (sc.winner === 'home' || sc.winner === 'away') winSide = sc.winner;
+      if (home > away) winSide = 'home';
+      else if (away > home) winSide = 'away';
+      else if (sc?.winner === 'home' || sc?.winner === 'away') winSide = sc.winner;
       else {
         m.needsAttention = true; // nul sans TAB → propagation bloquée
         continue;
@@ -87,11 +89,11 @@ export class KnockoutStageEngine {
 }
 
 /** Compte les matchs entièrement renseignés parmi `ids`. */
-export function countEntered(scores: ScoreMap, ids: readonly MatchId[]): number {
+export function countEntered(scores: DraftScoreMap, ids: readonly MatchId[]): number {
   let n = 0;
   for (const id of ids) {
     const sc = scores[id];
-    if (sc && Number.isInteger(sc.home) && Number.isInteger(sc.away)) n++;
+    if (typeof sc?.home === 'number' && typeof sc?.away === 'number') n++;
   }
   return n;
 }

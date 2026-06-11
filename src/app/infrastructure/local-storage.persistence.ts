@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ScoreMap } from '../domain/models';
+import { DraftScoreMap } from '../domain/models';
 import { PersistencePort } from '../domain/ports/persistence.port';
 import { SCHEMA_VERSION, ScoreMapValidator } from '../domain/validation/score-map.validator';
 
@@ -9,7 +9,7 @@ export class LocalStoragePersistence implements PersistencePort {
   private static readonly KEY = 'world-cup-2026-predictions';
   private readonly validator = new ScoreMapValidator();
 
-  loadPredictions(): ScoreMap {
+  loadPredictions(): DraftScoreMap {
     try {
       const raw = localStorage.getItem(LocalStoragePersistence.KEY);
       if (!raw) return {};
@@ -20,7 +20,7 @@ export class LocalStoragePersistence implements PersistencePort {
     }
   }
 
-  savePredictions(map: ScoreMap): void {
+  savePredictions(map: DraftScoreMap): void {
     try {
       localStorage.setItem(
         LocalStoragePersistence.KEY,

@@ -1,0 +1,9 @@
+<div class="cmp">
+  <span class="off">🏟️ Officiel {{ officialText() }}</span>
+  @if (prediction(); as p) {
+    <span class="prono">· prono {{ p.home }}–{{ p.away }}</span>
+    <wc-verdict-badge [verdict]="verdict()" />
+  } @else {
+    <span class="prono muted">· aucun prono saisi</span>
+  }
+</div>

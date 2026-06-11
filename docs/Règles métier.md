@@ -39,8 +39,20 @@ Points **3 / 1 / 0** (victoire / nul / défaite). Départage, dans l'ordre :
 ## Résultats officiels & verrouillage
 - Source = **fichier serveur** `public/official-results.json`, **saisi à la main** au fil des vrais matchs. ⚠️ **Aucune API/site officiel interrogé** — pas de scraping.
 - **Priorité** : pour chaque match, score effectif = **officiel ?? pronostic**. L'officiel pilote classements + bracket.
-- **Verrouillage** : un match avec résultat officiel est en **lecture seule** — la saisie utilisateur est ignorée (cf. [[Règles techniques#Verrouillage]]).
-- **Comparaison pronostic** (jeu) : `exact` (score identique) · `bon résultat` (bon vainqueur/nul, score différent) · `raté`. Synthèse globale affichée.
+- **Verrouillage (lecture seule)** d'un match dès que **l'une** des conditions est vraie :
+  1. un **résultat officiel** existe pour ce match ;
+  2. le **coup d'envoi est passé** — dès l'heure de début, le pronostic ne peut plus être modifié.
+  La saisie verrouillée est ignorée (garde dans le store + `disabled` en UI — défense en profondeur). Cf. [[Règles techniques#Verrouillage]].
+- **Heure de coup d'envoi** : champ `kickoff` (ISO 8601 + fuseau) du calendrier (`SCHEDULE`), **maintenu à la main** comme les résultats. Tant qu'il est absent pour un match, seul le verrou « résultat officiel » s'applique. Le temps courant vient d'un **port `Clock`** (le domaine ne lit jamais l'horloge directement).
+
+## Comparaison & barème de points
+- Une fois le **résultat officiel intégré**, le **pronostic saisi par le joueur est affiché à côté** du score officiel (ex. `🏟️ Officiel 2–1 · prono 1–1`), avec son verdict.
+- **Verdict** par match : `exact` (score identique) · `bon résultat` (bon vainqueur/nul mais score différent) · `raté`.
+- **Barème de points** :
+  - **3 pts** par **score exact** ;
+  - **1 pt** par **bon résultat** (sans le score exact) ;
+  - **0 pt** sinon.
+- Le **total** = `3 × (scores exacts) + 1 × (bons résultats)`, affiché dans la synthèse globale avec le détail (exacts / bons résultats / ratés / sans prono).
 
 ## Pronostics & persistance
 - Les **scores sont saisis par l'utilisateur** ; seuls les pronostics sont **persistés** (LocalStorage, par navigateur). Voir [[Règles techniques#Persistance]].

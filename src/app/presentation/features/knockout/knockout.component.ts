@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TournamentStore } from '../../../application/tournament.store';
 import {
   BRACKET_LINKS,
@@ -8,82 +8,64 @@ import {
 } from '../../../domain/data/knockout-structure';
 import { SCHEDULE } from '../../../domain/data/schedule';
 import { teamName } from '../../../domain/data/teams';
-import {
-  Comparison,
-  KnockoutMatch,
-  KnockoutPhase,
-  MatchId,
-  Score,
-  Side,
-  SlotSource,
-} from '../../../domain/models';
+import { MatchId, Side, SlotSource } from '../../../domain/models';
+import { required } from '../../../domain/util/required';
 import { ComparisonLineComponent } from '../../ui/comparison-line.component';
 import { FlagComponent } from '../../ui/flag.component';
 import { ScoreInputComponent } from '../../ui/score-input.component';
 
-/** Décrit la provenance d'un côté de match (pour afficher au lieu de « À déterminer »). */
+/** Décrit la provenance d'un côté de match (affiché au lieu de « À déterminer »). */
 function describeSource(s: SlotSource): string {
   if (s.kind === 'winner') return `1ᵉʳ groupe ${s.group}`;
   if (s.kind === 'runnerUp') return `2ᵉ groupe ${s.group}`;
   return 'Meilleur 3ᵉ';
 }
 
-/** Label de provenance par emplacement `${matchId}-${side}` (R32 = chapeau, R16+ = vainqueur/perdant). */
+/** Provenance par emplacement `${matchId}-${side}` (R32 = chapeau, R16+ = vainqueur/perdant). */
 const FEEDER_LABEL: Record<string, string> = (() => {
-  const m: Record<string, string> = {};
+  const labels: Record<string, string> = {};
   for (const slot of R32_SLOTS) {
-    m[`${slot.id}-home`] = describeSource(slot.home);
-    m[`${slot.id}-away`] = describeSource(slot.away);
+    labels[`${slot.id}-home`] = describeSource(slot.home);
+    labels[`${slot.id}-away`] = describeSource(slot.away);
   }
   for (const link of BRACKET_LINKS) {
     if (link.winnerTo) {
-      m[`${link.winnerTo.match}-${link.winnerTo.side}`] = `Vainqueur M${link.match.slice(1)}`;
+      labels[`${link.winnerTo.match}-${link.winnerTo.side}`] = `Vainqueur M${link.match.slice(1)}`;
     }
     if (link.loserTo) {
-      m[`${link.loserTo.match}-${link.loserTo.side}`] = `Perdant M${link.match.slice(1)}`;
+      labels[`${link.loserTo.match}-${link.loserTo.side}`] = `Perdant M${link.match.slice(1)}`;
     }
   }
-  return m;
+  return labels;
 })();
 
-/**
- * Nourrisseurs d'un match : FEEDERS[target] = [sourceHome, sourceAway].
- * Reconstruit depuis BRACKET_LINKS.winnerTo (sens inverse de la propagation).
- */
-const FEEDERS: Record<MatchId, [MatchId, MatchId]> = (() => {
-  const tmp: Record<string, { home?: MatchId; away?: MatchId }> = {};
+/** Nourrisseurs d'un match : [home, away], reconstruits depuis BRACKET_LINKS.winnerTo. */
+const FEEDERS: Record<MatchId, { home?: MatchId; away?: MatchId }> = (() => {
+  const map: Record<MatchId, { home?: MatchId; away?: MatchId }> = {};
   for (const link of BRACKET_LINKS) {
     if (!link.winnerTo) continue;
-    const t = link.winnerTo.match;
-    (tmp[t] ??= {})[link.winnerTo.side] = link.match;
+    const entry = map[link.winnerTo.match] ?? {};
+    entry[link.winnerTo.side] = link.match;
+    map[link.winnerTo.match] = entry;
   }
-  const out: Record<MatchId, [MatchId, MatchId]> = {};
-  for (const [target, sides] of Object.entries(tmp)) {
-    if (sides.home && sides.away) out[target] = [sides.home, sides.away];
-  }
-  return out;
+  return map;
 })();
 
-/**
- * Index d'arbre par parcours infixe depuis la finale (M104).
- * Trier une colonne par cet index aligne chaque match au milieu de ses 2 qualifiés.
- */
+/** Index d'arbre par parcours infixe depuis la finale (centre chaque match entre ses qualifiés). */
 const ORDER_INDEX: Record<MatchId, number> = (() => {
   const idx: Record<MatchId, number> = {};
   let n = 0;
   const visit = (node: MatchId): void => {
     const feeders = FEEDERS[node];
-    if (feeders) visit(feeders[0]);
+    if (feeders?.home) visit(feeders.home);
     idx[node] = n++;
-    if (feeders) visit(feeders[1]);
+    if (feeders?.away) visit(feeders.away);
   };
   visit('M104');
   return idx;
 })();
 
-const THIRD_PLACE_ID: MatchId = 'M103';
-
-/** Ids ordonnés par l'arbre, précalculés par tour (statique → évite un tri à chaque CD). */
+/** Ids ordonnés par l'arbre, précalculés par tour (statique). */
 const ORDERED_IDS: Record<string, MatchId[]> = (() => {
   const out: Record<string, MatchId[]> = {};
   for (const ph of KO_PHASES) {
@@ -94,6 +76,9 @@ const ORDERED_IDS: Record<string, MatchId[]> = (() => {
   return out;
 })();
 
+const FINAL_ID: MatchId = 'M104';
+const THIRD_PLACE_ID: MatchId = 'M103';
+
 @Component({
   selector: 'wc-knockout',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -102,84 +87,23 @@ const ORDERED_IDS: Record<string, MatchId[]> = (() => {
   styleUrl: './knockout.component.scss',
 })
 export class KnockoutComponent {
-  protected readonly store = inject(TournamentStore);
-  /** Tours de l'arbre (hors petite finale, rendue à part). */
-  protected readonly bracketPhases = KO_PHASES.filter((p) => p.key !== 'P3');
-  protected readonly thirdPlaceId = THIRD_PLACE_ID;
-  protected readonly name = teamName;
+  private readonly store = inject(TournamentStore);
 
-  /** Ids d'un tour, ordonnés selon l'arbre (précalculé, stable entre CD). */
-  protected orderedIds(phase: KnockoutPhase): MatchId[] {
-    return ORDERED_IDS[phase.key] ?? [];
-  }
-
-  /** Nom de l'équipe si connue, sinon la provenance (« Vainqueur M74 », « 2ᵉ groupe A »…). */
-  protected placeholder(id: MatchId, side: Side): string {
-    return FEEDER_LABEL[`${id}-${side}`] ?? 'À déterminer';
-  }
-
-  /** Champion = vainqueur de la finale (M104) une fois décidée. */
-  protected champion(): string | null {
-    const final = this.store.knockout()['M104'];
-    return final?.decided ? this.name(final.winner) : null;
-  }
-
-  /** Finaliste = perdant de la finale (vice-champion). */
-  protected runnerUp(): string | null {
-    const final = this.store.knockout()['M104'];
-    return final?.decided ? this.name(final.loser) : null;
-  }
-
-  protected match(id: MatchId): KnockoutMatch {
-    return this.store.knockout()[id]!;
-  }
-
-  protected sideValue(id: MatchId, side: Side): number | null {
-    return this.store.effective()[id]?.[side] ?? null;
-  }
-
-  protected isWinner(id: MatchId, teamId: string | null): boolean {
-    const m = this.match(id);
-    return m.decided && teamId !== null && m.winner === teamId;
-  }
-
-  /** Affiche le sélecteur tirs au but : éditable, deux équipes connues, nul saisi. */
-  protected showPenalty(id: MatchId): boolean {
-    const m = this.match(id);
-    const sc = this.store.effective()[id];
-    return (
-      this.store.isEditable(id) &&
-      m.home !== null &&
-      m.away !== null &&
-      !!sc &&
-      Number.isInteger(sc.home) &&
-      Number.isInteger(sc.away) &&
-      sc.home === sc.away
-    );
-  }
-
-  protected penaltyPick(id: MatchId): Side | undefined {
-    return this.store.effective()[id]?.winner;
-  }
-
-  protected schedule(id: MatchId): { date: string; venue: string } | null {
-    return SCHEDULE[id] ?? null;
-  }
-
-  protected official(id: MatchId): Score | undefined {
-    return this.store.officialResults()[id];
-  }
-
-  protected comparison(id: MatchId): Comparison | undefined {
-    return this.store.comparison()[id];
-  }
-
-  /** Équipe qualifiée aux tirs au but pour un résultat officiel nul (sinon null). */
-  protected koWinnerName(id: MatchId): string | null {
-    const off = this.official(id);
-    if (!off || off.home !== off.away || !off.winner) return null;
-    return this.name(this.match(id)[off.winner]);
-  }
+  /** Arbre complet prêt à afficher : tours ordonnés, podium, petite finale. */
+  protected readonly bracketVm = computed(() => {
+    const rounds = KO_PHASES.filter((ph) => ph.key !== 'P3').map((ph) => ({
+      key: ph.key,
+      label: ph.label,
+      matches: (ORDERED_IDS[ph.key] ?? []).map((id) => this.matchVm(id)),
+    }));
+    const final = required(this.store.knockout()[FINAL_ID], 'finale manquante');
+    return {
+      rounds,
+      thirdPlace: this.matchVm(THIRD_PLACE_ID),
+      champion: final.decided ? teamName(final.winner) : null,
+      runnerUp: final.decided ? teamName(final.loser) : null,
+    };
+  });
 
   protected set(id: MatchId, side: Side, value: number | null): void {
     this.store.setScore(id, side, value);
@@ -187,5 +111,60 @@ export class KnockoutComponent {
 
   protected pickWinner(id: MatchId, side: Side): void {
     this.store.pickPenaltyWinner(id, side);
+  }
+
+  private matchVm(id: MatchId) {
+    const m = required(this.store.knockout()[id], `match ${id} manquant`);
+    const eff = this.store.effective()[id];
+    const off = this.store.officialResults()[id];
+    const cmp = this.store.comparison()[id];
+    const bothKnown = m.home !== null && m.away !== null;
+    const editable = this.store.isEditable(id);
+    const isDraw =
+      !!eff &&
+      Number.isInteger(eff.home) &&
+      Number.isInteger(eff.away) &&
+      eff.home === eff.away;
+    const koWinnerName =
+      off && off.home === off.away && off.winner ? teamName(m[off.winner]) : null;
+
+    return {
+      id,
+      meta: `Match ${id.slice(1)}`,
+      schedule: SCHEDULE[id] ?? null,
+      inputDisabled: !editable || !bothKnown,
+      needsAttention: m.needsAttention,
+      showPenalty: editable && bothKnown && isDraw,
+      penaltyHome: eff?.winner === 'home',
+      penaltyAway: eff?.winner === 'away',
+      home: {
+        teamId: m.home,
+        name: teamName(m.home),
+        penaltyAria: `Vainqueur aux tirs au but : ${teamName(m.home) ?? ''}`,
+        display:
+          m.home === null
+            ? (FEEDER_LABEL[`${id}-home`] ?? 'À déterminer')
+            : (teamName(m.home) ?? ''),
+        tbd: m.home === null,
+        winner: m.decided && m.winner === m.home,
+        value: eff?.home ?? null,
+      },
+      away: {
+        teamId: m.away,
+        name: teamName(m.away),
+        penaltyAria: `Vainqueur aux tirs au but : ${teamName(m.away) ?? ''}`,
+        display:
+          m.away === null
+            ? (FEEDER_LABEL[`${id}-away`] ?? 'À déterminer')
+            : (teamName(m.away) ?? ''),
+        tbd: m.away === null,
+        winner: m.decided && m.winner === m.away,
+        value: eff?.away ?? null,
+      },
+      official: off ?? null,
+      prediction: cmp?.prediction ?? null,
+      verdict: cmp?.verdict ?? null,
+      koWinnerName,
+    };
   }
 }

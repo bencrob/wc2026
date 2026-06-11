@@ -3,15 +3,25 @@ import { MatchId, ScoreMap } from '../models';
 /**
  * Règle d'accès en écriture à un match (PURE).
  *
- * Principe : dès qu'un résultat officiel (serveur) existe pour un match,
- * celui-ci est en LECTURE SEULE — l'utilisateur ne peut plus saisir son score.
+ * Un match passe en LECTURE SEULE dès qu'une des conditions est vraie :
+ *  1. un résultat officiel (serveur) existe pour ce match ;
+ *  2. le coup d'envoi est passé (l'instant courant a atteint l'heure de début).
+ *
+ * Le temps est reçu en paramètre (`now`, ms epoch) — la policy ne lit jamais l'horloge.
  */
 export class MatchAccessPolicy {
-  isEditable(id: MatchId, official: ScoreMap): boolean {
-    return official[id] === undefined;
+  isEditable(
+    id: MatchId,
+    official: ScoreMap,
+    kickoffMs: number | undefined,
+    now: number,
+  ): boolean {
+    if (official[id] !== undefined) return false;
+    if (kickoffMs !== undefined && now >= kickoffMs) return false;
+    return true;
   }
 
-  isLocked(id: MatchId, official: ScoreMap): boolean {
-    return !this.isEditable(id, official);
+  isLocked(id: MatchId, official: ScoreMap, kickoffMs: number | undefined, now: number): boolean {
+    return !this.isEditable(id, official, kickoffMs, now);
   }
 }

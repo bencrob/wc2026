@@ -1,0 +1,12 @@
+<input
+  type="number"
+  min="0"
+  inputmode="numeric"
+  class="score-input"
+  [class.locked]="disabled()"
+  [value]="displayValue()"
+  [disabled]="disabled()"
+  [attr.aria-label]="ariaLabel()"
+  [title]="lockTitle()"
+  (input)="onInput($event)"
+/>

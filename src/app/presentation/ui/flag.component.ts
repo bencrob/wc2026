@@ -6,15 +6,8 @@ import { TeamId } from '../../domain/models';
 @Component({
   selector: 'wc-flag',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<span class="flag" aria-hidden="true">{{ flag() }}</span>`,
-  styles: `
-    .flag {
-      font-family: 'Twemoji Country Flags', 'Segoe UI Emoji', 'Apple Color Emoji',
-        'Noto Color Emoji', sans-serif;
-      font-size: 1.15rem;
-      line-height: 1;
-    }
-  `,
+  templateUrl: './flag.component.html',
+  styleUrl: './flag.component.scss',
 })
 export class FlagComponent {
   readonly teamId = input<TeamId | null>(null);

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -40,6 +40,21 @@ export class App {
   private readonly fileIo = inject(FILE_IO);
   private readonly snack = inject(MatSnackBar);
 
+  /** Vues dérivées (zéro logique dans le template). */
+  protected readonly darkIcon = computed(() => (this.theme.dark() ? 'light_mode' : 'dark_mode'));
+  protected readonly darkLabel = computed(() => (this.theme.dark() ? 'Mode clair' : 'Mode sombre'));
+  protected readonly themeItems = computed(() =>
+    this.theme.themes.map((t) => ({
+      id: t.id,
+      label: t.label,
+      icon: this.theme.current() === t.id ? 'check' : 'circle',
+    })),
+  );
+  protected readonly progressAria = computed(
+    () => `${this.store.progress().total} sur 104 matchs renseignés`,
+  );
+  protected readonly hasOfficial = computed(() => this.store.comparisonSummary().official > 0);
+
   /** Change d'onglet relativement (swipe) en restant dans [0, 2]. */
   protected goRelative(delta: number): void {
     this.selected.set(Math.min(2, Math.max(0, this.selected() + delta)));
@@ -51,7 +66,8 @@ export class App {
   }
 
   protected async onImport(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement)) return;
     const file = input.files?.[0];
     input.value = '';
     if (!file) return;

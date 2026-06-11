@@ -1,0 +1,20 @@
+.verdict {
+  display: inline-block;
+  padding: 0.05rem 0.4rem;
+  border-radius: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.v-exact {
+  background: #198754;
+  color: #fff;
+}
+.v-outcome {
+  background: #ffc107;
+  color: #000;
+}
+.v-wrong {
+  background: #dc3545;
+  color: #fff;
+}

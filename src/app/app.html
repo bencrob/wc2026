@@ -1,24 +1,24 @@
 <mat-toolbar class="app-bar" role="banner">
   <h1 class="title">
-    <img src="favicon.svg" alt="" class="brand-logo" />
+    <img src="logo-2026.svg" alt="" class="brand-logo" />
     Pronoscup 2026
   </h1>
   <span class="spacer"></span>
   <button
     mat-icon-button
     (click)="theme.toggleDark()"
-    [attr.aria-label]="theme.dark() ? 'Mode clair' : 'Mode sombre'"
-    [title]="theme.dark() ? 'Mode clair' : 'Mode sombre'"
+    [attr.aria-label]="darkLabel()"
+    [title]="darkLabel()"
   >
-    <mat-icon>{{ theme.dark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    <mat-icon>{{ darkIcon() }}</mat-icon>
   </button>
   <button mat-icon-button [matMenuTriggerFor]="themeMenu" aria-label="Thème de couleurs" title="Thème">
     <mat-icon>palette</mat-icon>
   </button>
   <mat-menu #themeMenu="matMenu">
-    @for (t of theme.themes; track t.id) {
+    @for (t of themeItems(); track t.id) {
       <button mat-menu-item (click)="theme.set(t.id)">
-        <mat-icon>{{ theme.current() === t.id ? 'check' : 'circle' }}</mat-icon>
+        <mat-icon>{{ t.icon }}</mat-icon>
         <span>{{ t.label }}</span>
       </button>
     }
@@ -60,19 +60,22 @@
       mode="determinate"
       [value]="p.pct"
       aria-label="Progression globale"
-      [attr.aria-valuetext]="p.total + ' sur 104 matchs renseignés'"
+      [attr.aria-valuetext]="progressAria()"
     />
-    @if (s.official > 0) {
-      <div class="pronostic">
-        🏟️ {{ s.official }} résultat(s) officiel(s) · Pronostics :
+    <div class="pronostic">
+      <span class="score">🏆 Mon score : {{ s.points }} pt(s)</span>
+      @if (hasOfficial()) {
+        · 🏟️ {{ s.official }} résultat(s) officiel(s) :
         <span class="ok">{{ s.exact }} exact(s)</span> ·
         <span class="mid">{{ s.outcome }} bon(s) résultat(s)</span> ·
         <span class="ko">{{ s.wrong }} raté(s)</span>
         @if (s.noPrediction) {
           · <span class="muted">{{ s.noPrediction }} sans prono</span>
         }
-      </div>
-    }
+      } @else {
+        <span class="muted">· en attente des premiers résultats officiels</span>
+      }
+    </div>
   </section>
 
   <mat-tab-group

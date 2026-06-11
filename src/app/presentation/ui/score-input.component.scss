@@ -1,0 +1,25 @@
+.score-input {
+  width: 2.8rem;
+  text-align: center;
+  padding: 0.25rem;
+  border: 1px solid var(--mat-sys-outline, #999);
+  border-radius: 4px;
+  background: var(--mat-sys-surface, #fff);
+  color: var(--mat-sys-on-surface, #000);
+  font: inherit;
+}
+.score-input:focus-visible {
+  outline: 2px solid var(--mat-sys-primary, #1976d2);
+  outline-offset: 1px;
+  border-color: var(--mat-sys-primary, #1976d2);
+}
+.score-input.locked {
+  background: #e9ecef;
+  color: #212529;
+  font-weight: 700;
+  cursor: not-allowed;
+}
+.score-input::-webkit-outer-spin-button,
+.score-input::-webkit-inner-spin-button {
+  margin: 0;
+}

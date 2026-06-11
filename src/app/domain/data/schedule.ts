@@ -7,7 +7,9 @@ import { MatchId, MatchSchedule } from '../models';
  */
 export const SCHEDULE: Readonly<Record<MatchId, MatchSchedule>> = {
   // ---- Phase de poules (M1..M72) ----
-  M1: { date: '11 juin', venue: 'Estadio Azteca, Mexico' },
+  // `kickoff` (ISO 8601 + fuseau) = heure officielle du coup d'envoi → verrou en écriture.
+  // À renseigner match par match (maintenu à la main, comme official-results.json).
+  M1: { date: '11 juin', venue: 'Estadio Azteca, Mexico', kickoff: '2026-06-11T19:00:00-06:00' },
   M2: { date: '11 juin', venue: 'Estadio Akron, Guadalajara' },
   M3: { date: '18 juin', venue: 'Estadio Akron, Guadalajara' },
   M4: { date: '18 juin', venue: 'Mercedes-Benz Stadium, Atlanta' },

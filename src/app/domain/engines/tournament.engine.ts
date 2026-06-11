@@ -4,6 +4,8 @@ import { GROUPS } from '../data/teams';
 import {
   Comparison,
   ComparisonSummary,
+  DraftScore,
+  DraftScoreMap,
   GroupId,
   GroupResult,
   MatchId,
@@ -14,6 +16,7 @@ import {
   TeamId,
   ThirdPlaceRow,
 } from '../models';
+import { required } from '../util/required';
 import { GroupStageEngine } from './group-stage.engine';
 import { countEntered, KnockoutStageEngine } from './knockout-stage.engine';
 import { PredictionComparator } from './prediction-comparator';
@@ -32,28 +35,27 @@ export class TournamentEngine {
     private readonly comparator: PredictionComparator = new PredictionComparator(),
   ) {}
 
-  recompute(predictions: ScoreMap, official: ScoreMap = {}): RuntimeState {
+  recompute(predictions: DraftScoreMap, official: ScoreMap = {}): RuntimeState {
     // 0. Scores effectifs : l'officiel remplace entièrement le prono du même match.
-    const effective: Record<MatchId, ScoreMap[MatchId]> = { ...predictions };
+    const effective: Record<MatchId, DraftScore> = { ...predictions };
     for (const id of Object.keys(official)) {
       const o = official[id];
       if (o) effective[id] = o;
     }
 
     // 1. Classements des 12 groupes
-    const groups = {} as Record<GroupId, GroupResult>;
-    for (const g of GROUPS) {
-      groups[g] = this.groupStage.computeGroupStandings(g, effective);
-    }
+    const groups = new Map<GroupId, GroupResult>(
+      GROUPS.map((g) => [g, this.groupStage.computeGroupStandings(g, effective)]),
+    );
 
     // 2. Qualifiés directs (1er/2e par groupe complet)
     const winners: Partial<Record<GroupId, TeamId>> = {};
     const runnersUp: Partial<Record<GroupId, TeamId>> = {};
     for (const g of GROUPS) {
-      const gr = groups[g];
-      if (gr.complete) {
-        winners[g] = gr.standings[0]!.teamId;
-        runnersUp[g] = gr.standings[1]!.teamId;
+      const gr = groups.get(g);
+      if (gr?.complete) {
+        winners[g] = required(gr.standings[0], `1er du groupe ${g}`).teamId;
+        runnersUp[g] = required(gr.standings[1], `2e du groupe ${g}`).teamId;
       }
     }
 
@@ -97,6 +99,7 @@ export class TournamentEngine {
       outcome: 0,
       wrong: 0,
       noPrediction: 0,
+      points: 0,
     };
     for (const id of Object.keys(official)) {
       const off = official[id];
@@ -115,6 +118,8 @@ export class TournamentEngine {
         comparison[id] = { verdict, prediction: predictions[id] ?? null };
       }
     }
+    // Barème : 3 pts par score exact, 1 pt par bon résultat (sans le score).
+    comparisonSummary.points = comparisonSummary.exact * 3 + comparisonSummary.outcome;
 
     // 6. Progression (sur scores effectifs)
     const groupsDone = countEntered(effective, GROUP_FIXTURE_IDS);

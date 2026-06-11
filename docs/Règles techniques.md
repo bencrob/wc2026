@@ -22,13 +22,13 @@ infrastructure/ adapters (LocalStorage, résultats serveur, fichier)
 domain/         modèles + moteurs PURS + policies + données
 ```
 - `domain/` : **aucun import Angular**. Moteurs : `GroupStageEngine`, `KnockoutStageEngine`, `TournamentEngine`, `PredictionComparator`, `RankingComparator`. Données figées dans `domain/data/`.
-- `application/` : `TournamentStore`, jetons `PERSISTENCE` / `OFFICIAL_RESULTS` / `FILE_IO`.
-- `infrastructure/` : `LocalStoragePersistence`, `RemoteOfficialResultsProvider`, `BrowserFileIo`.
+- `application/` : `TournamentStore`, jetons `PERSISTENCE` / `OFFICIAL_RESULTS` / `FILE_IO` / `CLOCK`.
+- `infrastructure/` : `LocalStoragePersistence`, `RemoteOfficialResultsProvider`, `BrowserFileIo` (le `CLOCK` par défaut = horloge système, via factory du jeton).
 
 ## SOLID
 - **S** : un moteur = une responsabilité.
 - **O** : `RankingComparator` est une **Strategy** (ajouter une règle de départage sans toucher au moteur).
-- **L** : ports substituables (`InMemoryPersistence`, `StaticOfficialResultsProvider` en test).
+- **L** : ports substituables (`PersistenceStub`, `OfficialResultsStub`, `FileIoSpy`, `ClockStub` en test).
 - **I** : ports étroits (`OfficialResultsPort` = lecture seule `fetch()`).
 - **D** : dépendances sur des `InjectionToken`, concrets câblés dans `app.config.ts`.
 
@@ -42,7 +42,9 @@ domain/         modèles + moteurs PURS + policies + données
 - Les **officiels ne sont pas persistés localement** : rechargés du serveur à chaque démarrage.
 
 ## Verrouillage
-- `MatchAccessPolicy.isEditable(id, official)` (pur). **Défense en profondeur** : `disabled` côté UI **et** garde dans `setScore` / `pickPenaltyWinner` (mutation ignorée si officiel).
+- `MatchAccessPolicy.isEditable(id, official, kickoffMs, now)` (pur) : lecture seule si **résultat officiel** OU **coup d'envoi passé** (`now >= kickoffMs`).
+- **Temps** : le store lit l'instant via le port `CLOCK` dans un signal `_now`, réévalué toutes les 30 s (`setInterval`, nettoyé via `DestroyRef`) → les VMs `computed` rebasculent en lecture seule au coup d'envoi.
+- **Défense en profondeur** : `disabled` côté UI **et** garde dans `setScore` / `pickPenaltyWinner` (mutation ignorée si verrouillé).
 
 ## Conventions UI
 - Préfixe sélecteurs **`wc`**, **OnPush** partout, nouveau control-flow `@if`/`@for`/`@switch`.

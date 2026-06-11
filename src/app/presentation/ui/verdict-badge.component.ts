@@ -11,24 +11,8 @@ const LABELS: Record<Verdict, { text: string; cls: string }> = {
 @Component({
   selector: 'wc-verdict-badge',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @if (info(); as i) {
-      <span class="verdict" [class]="i.cls">{{ i.text }}</span>
-    }
-  `,
-  styles: `
-    .verdict {
-      display: inline-block;
-      padding: 0.05rem 0.4rem;
-      border-radius: 0.5rem;
-      font-size: 0.72rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .v-exact { background: #198754; color: #fff; }
-    .v-outcome { background: #ffc107; color: #000; }
-    .v-wrong { background: #dc3545; color: #fff; }
-  `,
+  templateUrl: './verdict-badge.component.html',
+  styleUrl: './verdict-badge.component.scss',
 })
 export class VerdictBadgeComponent {
   readonly verdict = input<Verdict | null>(null);
