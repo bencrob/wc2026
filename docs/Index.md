@@ -21,6 +21,7 @@ Règles de développement détaillées dans [guidelines/](guidelines/) :
 - [Performance](guidelines/04-performance.guidelines.md) — pipes purs et optimisations.
 - [Signals](guidelines/05-signals.guidelines.md) — readonly, generics, computed, effects.
 - [Organization](guidelines/06-organization.guidelines.md) — couches hexagonales, règles de placement, exports.
+- [Business rules](guidelines/07-business-rules.guidelines.md) — référentiel complet et citable des règles métier (`Rule NN-MM`).
 
 Voir aussi [CLAUDE.md](../CLAUDE.md) (guide pour les agents IA et résumé des conventions).
 
