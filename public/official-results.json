@@ -1,7 +1,17 @@
 {
   "version": 1,
   "results": {
-    "M1": { "home": 2, "away": 0 },
-    "M2": { "home": 2, "away": 1}
+    "M1": {
+      "home": 2,
+      "away": 0
+    },
+    "M2": {
+      "home": 2,
+      "away": 1
+    },
+    "M7": {
+      "home": 1,
+      "away": 1
+    }
   }
 }
