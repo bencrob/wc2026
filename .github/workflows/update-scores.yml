@@ -51,3 +51,11 @@ jobs:
             git commit -m "chore(results): auto-update official scores"
             git push
           fi
+
+      # Recalcule le classement Supabase à partir des résultats officiels + des
+      # pronostics. No-op proprement si Supabase n'est pas configuré (secrets absents).
+      - name: Update leaderboard
+        run: npm run update:leaderboard
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
