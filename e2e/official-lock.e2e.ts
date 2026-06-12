@@ -10,7 +10,8 @@ test.describe('Résultats officiels (serveur)', () => {
       }),
     );
 
-    await page.goto('/');
+    // Horloge figée avant le coup d'envoi : le verrou testé vient bien de l'officiel.
+    await page.goto('/?now=2026-06-01T00:00:00Z');
 
     const first = page.locator('input.score-input').first(); // M1 domicile
     await expect(first).toBeDisabled(); // verrouillage lecture seule

@@ -3,8 +3,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { App } from './app';
 import { TournamentStore } from './application/tournament.store';
-import { FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './application/tokens';
-import { FileIoSpy, OfficialResultsStub, PersistenceStub } from './testing/test-doubles';
+import { CLOCK, FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './application/tokens';
+import { ClockStub, FileIoSpy, OfficialResultsStub, PersistenceStub } from './testing/test-doubles';
 
 /** Surface interne du shell exposée aux tests (membres `protected`). */
 interface AppInternals {
@@ -30,6 +30,7 @@ function setup(): Harness {
       { provide: PERSISTENCE, useValue: new PersistenceStub() },
       { provide: OFFICIAL_RESULTS, useValue: new OfficialResultsStub() },
       { provide: FILE_IO, useValue: fileIo },
+      { provide: CLOCK, useValue: new ClockStub(0) }, // 1970 → avant tout coup d'envoi
     ],
   });
   const fixture = TestBed.createComponent(App);
