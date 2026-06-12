@@ -1,6 +1,6 @@
 import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
 import { MatchAccessPolicy } from '../domain/policies/match-access.policy';
-import { SCHEDULE } from '../domain/data/schedule';
+import { kickoffMsOf } from '../domain/data/schedule';
 import { DraftScore, DraftScoreMap, MatchId, ScoreMap, Side } from '../domain/models';
 import { TournamentEngine } from '../domain/engines/tournament.engine';
 import { ScoreMapValidator } from '../domain/validation/score-map.validator';
@@ -9,14 +9,6 @@ import { CLOCK, FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './tokens';
 
 /** Cadence de réévaluation des verrous horaires (UI passe en lecture seule au coup d'envoi). */
 const CLOCK_TICK_MS = 30_000;
-
-/** Coup d'envoi du match en ms epoch, ou `undefined` si non renseigné/illisible. */
-function kickoffMs(id: MatchId): number | undefined {
-  const iso = SCHEDULE[id]?.kickoff;
-  if (iso === undefined) return undefined;
-  const ms = Date.parse(iso);
-  return Number.isNaN(ms) ? undefined : ms;
-}
 
 /**
  * État applicatif réactif.
@@ -64,7 +56,7 @@ export class TournamentStore {
 
   /** Un match est en lecture seule s'il a un résultat officiel OU si son coup d'envoi est passé. */
   isEditable(id: MatchId): boolean {
-    return this.access.isEditable(id, this._official(), kickoffMs(id), this._now());
+    return this.access.isEditable(id, this._official(), kickoffMsOf(id), this._now());
   }
 
   /** Charge les résultats officiels (serveur) — à appeler au démarrage. */
