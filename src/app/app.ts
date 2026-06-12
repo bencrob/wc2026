@@ -6,11 +6,13 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { AccountSyncService } from './application/account-sync.service';
 import { TournamentStore } from './application/tournament.store';
 import { FILE_IO } from './application/tokens';
 import { ThemeService } from './presentation/theming/theme.service';
 import { GroupsComponent } from './presentation/features/groups/groups.component';
 import { KnockoutComponent } from './presentation/features/knockout/knockout.component';
+import { LeaderboardComponent } from './presentation/features/leaderboard/leaderboard.component';
 import { ThirdsComponent } from './presentation/features/thirds/thirds.component';
 import { SwipeDirective } from './presentation/ui/swipe.directive';
 
@@ -28,6 +30,7 @@ import { SwipeDirective } from './presentation/ui/swipe.directive';
     GroupsComponent,
     ThirdsComponent,
     KnockoutComponent,
+    LeaderboardComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -37,8 +40,17 @@ export class App {
   protected readonly selected = signal(0);
   protected readonly store = inject(TournamentStore);
   protected readonly theme = inject(ThemeService);
+  protected readonly account = inject(AccountSyncService);
   private readonly fileIo = inject(FILE_IO);
   private readonly snack = inject(MatSnackBar);
+
+  /** Session de compte (cloud) pour la barre d'outils. */
+  protected readonly user = this.account.user;
+  protected readonly accountLabel = computed(() => {
+    const current = this.user();
+    if (!current) return 'Se connecter';
+    return this.account.pseudo() ?? current.email;
+  });
 
   /** Vues dérivées (zéro logique dans le template). */
   protected readonly darkIcon = computed(() => (this.theme.dark() ? 'light_mode' : 'dark_mode'));
@@ -55,9 +67,17 @@ export class App {
   );
   protected readonly hasOfficial = computed(() => this.store.comparisonSummary().official > 0);
 
-  /** Change d'onglet relativement (swipe) en restant dans [0, 2]. */
+  /** Change d'onglet relativement (swipe) en restant dans [0, 3]. */
   protected goRelative(delta: number): void {
-    this.selected.set(Math.min(2, Math.max(0, this.selected() + delta)));
+    this.selected.set(Math.min(3, Math.max(0, this.selected() + delta)));
+  }
+
+  protected signIn(): void {
+    void this.account.signIn();
+  }
+
+  protected signOut(): void {
+    void this.account.signOut();
   }
 
   protected onExport(): void {

@@ -3,7 +3,7 @@ import { MatchAccessPolicy } from '../domain/policies/match-access.policy';
 import { kickoffMsOf } from '../domain/data/schedule';
 import { DraftScore, DraftScoreMap, MatchId, ScoreMap, Side } from '../domain/models';
 import { TournamentEngine } from '../domain/engines/tournament.engine';
-import { ScoreMapValidator } from '../domain/validation/score-map.validator';
+import { SCHEMA_VERSION, ScoreMapValidator } from '../domain/validation/score-map.validator';
 import { Result, ok } from '../domain/validation/result';
 import { CLOCK, FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './tokens';
 
@@ -45,6 +45,8 @@ export class TournamentStore {
   readonly comparisonSummary = computed(() => this.runtime().comparisonSummary);
   readonly effective = computed(() => this.runtime().effective);
   readonly officialResults = this._official.asReadonly();
+  /** Pronostics bruts saisis (sans fusion avec l'officiel) — pour la synchro de compte. */
+  readonly predictions = this._predictions.asReadonly();
 
   constructor() {
     // Persistance réactive des pronostics (les officiels viennent du serveur, non sauvegardés).
@@ -86,6 +88,14 @@ export class TournamentStore {
     if (!res.ok) return res;
     this._predictions.set(res.value);
     return ok(undefined);
+  }
+
+  /**
+   * Remplace l'état avec des pronostics venus du cloud (hydratation après login).
+   * Revalide systématiquement le payload distant (jamais de confiance aveugle).
+   */
+  hydrateFromRemote(map: DraftScoreMap): Result<void> {
+    return this.importPredictions({ version: SCHEMA_VERSION, scores: map });
   }
 
   exportPredictions(): string {

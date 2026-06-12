@@ -3,8 +3,26 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { App } from './app';
 import { TournamentStore } from './application/tournament.store';
-import { CLOCK, FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from './application/tokens';
-import { ClockStub, FileIoSpy, OfficialResultsStub, PersistenceStub } from './testing/test-doubles';
+import {
+  AUTH,
+  CLOCK,
+  FILE_IO,
+  OFFICIAL_RESULTS,
+  PERSISTENCE,
+  PROFILE,
+  REMOTE_PREDICTIONS,
+  SYNC_PROMPTS,
+} from './application/tokens';
+import {
+  AuthStub,
+  ClockStub,
+  FileIoSpy,
+  OfficialResultsStub,
+  PersistenceStub,
+  ProfileStub,
+  RemotePredictionsStub,
+  SyncPromptsStub,
+} from './testing/test-doubles';
 
 /** Surface interne du shell exposée aux tests (membres `protected`). */
 interface AppInternals {
@@ -31,6 +49,10 @@ function setup(): Harness {
       { provide: OFFICIAL_RESULTS, useValue: new OfficialResultsStub() },
       { provide: FILE_IO, useValue: fileIo },
       { provide: CLOCK, useValue: new ClockStub(0) }, // 1970 → avant tout coup d'envoi
+      { provide: AUTH, useValue: new AuthStub() },
+      { provide: REMOTE_PREDICTIONS, useValue: new RemotePredictionsStub() },
+      { provide: PROFILE, useValue: new ProfileStub() },
+      { provide: SYNC_PROMPTS, useValue: new SyncPromptsStub() },
     ],
   });
   const fixture = TestBed.createComponent(App);
@@ -50,14 +72,15 @@ describe('App', () => {
   beforeEach(() => TestBed.resetTestingModule());
 
   describe('goRelative', () => {
-    test('borne la sélection dans [0, 2]', () => {
+    test('borne la sélection dans [0, 3]', () => {
       const { app } = setup();
       app.goRelative(-1);
       expect(app.selected()).toBe(0);
       app.goRelative(1);
       app.goRelative(1);
       app.goRelative(1);
-      expect(app.selected()).toBe(2);
+      app.goRelative(1);
+      expect(app.selected()).toBe(3);
     });
   });
 

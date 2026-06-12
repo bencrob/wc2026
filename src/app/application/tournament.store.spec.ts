@@ -158,6 +158,22 @@ describe('TournamentStore', () => {
     });
   });
 
+  describe('hydrateFromRemote', () => {
+    test('valide et remplace l’état avec les pronostics du cloud', () => {
+      const { store } = configure();
+      const res = store.hydrateFromRemote({ M1: { home: 2, away: 1 } });
+      expect(res.ok).toBe(true);
+      expect(store.predictions()).toEqual({ M1: { home: 2, away: 1 } });
+    });
+
+    test('rejette un payload distant invalide sans modifier l’état', () => {
+      const { store } = configure({ predictions: { M1: { home: 1, away: 0 } } });
+      const res = store.hydrateFromRemote({ Z9: { home: 1, away: 0 } });
+      expect(res.ok).toBe(false);
+      expect(store.predictions()).toEqual({ M1: { home: 1, away: 0 } });
+    });
+  });
+
   describe('exportPredictions', () => {
     test('sérialise { version, scores }', () => {
       const { store } = configure({ predictions: { M1: { home: 1, away: 0 } } });

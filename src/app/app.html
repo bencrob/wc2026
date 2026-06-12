@@ -23,6 +23,21 @@
       </button>
     }
   </mat-menu>
+  @if (user()) {
+    <button mat-button [matMenuTriggerFor]="accountMenu" class="account-btn" [title]="accountLabel()">
+      <mat-icon>account_circle</mat-icon>
+      <span class="account-name">{{ accountLabel() }}</span>
+    </button>
+    <mat-menu #accountMenu="matMenu">
+      <button mat-menu-item (click)="signOut()">
+        <mat-icon>logout</mat-icon><span>Se déconnecter</span>
+      </button>
+    </mat-menu>
+  } @else {
+    <button mat-icon-button (click)="signIn()" aria-label="Se connecter avec Google" title="Se connecter avec Google">
+      <mat-icon>login</mat-icon>
+    </button>
+  }
   <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
     <mat-icon>more_vert</mat-icon>
   </button>
@@ -102,6 +117,13 @@
     <mat-tab label="🗺️ Tableau final">
       @defer (on idle) {
         <wc-knockout />
+      } @placeholder {
+        <div class="tab-ph">Chargement…</div>
+      }
+    </mat-tab>
+    <mat-tab label="🏆 Classement">
+      @defer (on idle) {
+        <wc-leaderboard />
       } @placeholder {
         <div class="tab-ph">Chargement…</div>
       }
