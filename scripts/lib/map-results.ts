@@ -62,6 +62,12 @@ export interface MapOutcome {
   readonly results: ScoreMap;
   readonly addedIds: readonly MatchId[];
   readonly unmappedTeams: readonly string[];
+  /** Feed matches that are FINISHED with a numeric score. */
+  readonly finishedCount: number;
+  /** …of which both teams resolved to our ids. */
+  readonly recognizedCount: number;
+  /** …of which the pairing matched one of our matches (group fixture or KO seed). */
+  readonly mappedCount: number;
 }
 
 interface ResolvedFeedMatch {
@@ -84,18 +90,22 @@ export function buildResults(
   const unmappedTeams = new Set<string>();
 
   // Resolve every finished feed match's teams + full-time score once.
+  let finishedCount = 0;
   const resolved: ResolvedFeedMatch[] = [];
   for (const m of feed) {
     if (m.status !== 'FINISHED') continue;
     const fh = m.score.fullTime.home;
     const fa = m.score.fullTime.away;
     if (typeof fh !== 'number' || typeof fa !== 'number') continue;
+    finishedCount++;
     const a = resolveTeam(m.homeTeam);
     const b = resolveTeam(m.awayTeam);
     if (!a) unmappedTeams.add(m.homeTeam.name ?? m.homeTeam.tla ?? '???');
     if (!b) unmappedTeams.add(m.awayTeam.name ?? m.awayTeam.tla ?? '???');
     if (a && b) resolved.push({ a, b, home: fh, away: fa, match: m });
   }
+
+  const mappedPairs = new Set<string>();
 
   let changed = true;
   while (changed) {
@@ -113,6 +123,7 @@ export function buildResults(
       const group = FIXTURE_BY_PAIR.get(pairKey(r.a, r.b));
       const target = group ?? koByPair.get(pairKey(r.a, r.b));
       if (!target) continue;
+      mappedPairs.add(pairKey(r.a, r.b));
       const { id, home: ourHome } = target;
       if (out[id]) continue; // manual / already set wins
       if (!options.isDue(id)) continue; // +2h gate
@@ -130,5 +141,12 @@ export function buildResults(
     }
   }
 
-  return { results: out, addedIds, unmappedTeams: [...unmappedTeams] };
+  return {
+    results: out,
+    addedIds,
+    unmappedTeams: [...unmappedTeams],
+    finishedCount,
+    recognizedCount: resolved.length,
+    mappedCount: mappedPairs.size,
+  };
 }
