@@ -7,8 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:scripts": "vitest run --config vitest.scripts.config.ts",
     "e2e": "playwright test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "update:scores": "tsx scripts/update-official-results.ts"
   },
   "private": true,
   "packageManager": "npm@11.14.1",
@@ -39,6 +41,7 @@
     "eslint": "^10.3.0",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
+    "tsx": "^4.20.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "8.60.1",
     "vitest": "^4.0.8"

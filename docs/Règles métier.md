@@ -16,7 +16,7 @@ Logique du tournoi, implémentée dans `src/app/domain/` (pur, testé). Voir [[R
 - **Qualification** : 2 premiers par groupe (24) **+ 8 meilleurs 3es** (figés une fois les 12 groupes complets ; affectation par backtracking, 495 combinaisons valides). → *Rule 03-xx*
 - **Tableau final** : bracket croisé fixe, propagation du vainqueur, perdants des demies → petite finale (M103) ; **champion** = vainqueur M104. → *Rule 04-xx*
 - **Égalité KO** : tirs au but obligatoires (`winner`) sinon match non décidé et propagation bloquée ; interdit en poules. → *Rule 05-xx*
-- **Résultats officiels & verrouillage** : fichier serveur saisi à la main (pas de scraping) ; effectif = officiel ?? prono ; lecture seule dès l'officiel **ou** le coup d'envoi passé. → *Rule 06-xx*
+- **Résultats officiels & verrouillage** : fichier serveur, **alimenté automatiquement** (API football-data.org via GitHub Actions, ~2 h après le coup d'envoi) **ou à la main** (la saisie manuelle prime ; pas de scraping) ; effectif = officiel ?? prono ; lecture seule dès l'officiel **ou** le coup d'envoi passé. → *Rule 06-xx* · cf. [[Déploiement]]
 - **Comparaison & points** : verdict `exact`/`bon résultat`/`raté` ; **3 pts** par score exact, **1 pt** par bon résultat ; prono affiché à côté de l'officiel. → *Rule 07-xx*
 - **Import/export & validation** : schéma `{ version: 1, scores }`, ids M1–M104, scores entiers ≥ 0, `winner` interdit en poule / requis sur nul KO officiel. → *Rule 09-xx*
 - **Persistance** : 2 sources de vérité (pronos persistés + officiels serveur), tout le reste `computed`. → *Rule 10-xx*

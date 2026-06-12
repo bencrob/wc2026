@@ -251,9 +251,14 @@ Round of 32 (M73–M88) → Round of 16 (M89–M96) → Quarter-finals (M97–M1
 
 ### Rule 06-01 Official results source
 
-✅ Official results come from a **manually-maintained server file** (`public/official-results.json`).
+✅ Official results live in the server file `public/official-results.json`, fed two ways (**manual entry wins**):
 
-⛔ No official API/website is queried — **no scraping**. Results are entered by hand as real matches happen.
+- **Automated** — a scheduled GitHub Actions job (`.github/workflows/update-scores.yml`) pulls finished matches from a **structured sports-data API** (football-data.org), maps them to our ids, and commits the file ~2 h after kick-off (retrying until final).
+- **Manual** — hand edits for corrections / fallback; the updater **never overwrites a match already present** in the file.
+
+⛔ Still **no scraping** of FIFA/Flashscore (ToS + fragility) — only a sanctioned API.
+
+- 💡 The updater reuses the pure domain (`TournamentEngine` for KO seeding, `ScoreMapValidator` for the contract). See [Déploiement](../Déploiement.md#mettre-à-jour-les-résultats-officiels).
 
 ### Rule 06-02 Official precedence
 

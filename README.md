@@ -5,7 +5,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![PWA](https://img.shields.io/badge/PWA-offline-blueviolet)
 ![ESLint](https://img.shields.io/badge/code%20style-ESLint-4B32C3?logo=eslint&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-64%20unit%20%2B%203%20e2e-success)
+![Tests](https://img.shields.io/badge/tests-99%20unit%20%2B%2013%20scripts%20%2B%203%20e2e-success)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Last Commit](https://img.shields.io/github/last-commit/bencrob/wc2026)
 
@@ -26,10 +26,11 @@ src/app/
 ```
 
 - **Signals** (zoneless, OnPush) : 2 sources de vérité (pronostics + officiels) → tout le reste `computed`.
-- **Résultats officiels** = fichier serveur `public/official-results.json` **saisi à la main**
-  (aucune API externe). Tout match ayant un résultat officiel est **en lecture seule**
-  (verrouillage : garde dans le store + `disabled` UI) ; l'officiel pilote classements et
-  bracket, le pronostic reste affiché en comparaison (✓ exact / ≈ bon résultat / ✗ raté).
+- **Résultats officiels** = fichier serveur `public/official-results.json`, alimenté
+  **automatiquement** (API football-data.org via GitHub Actions, voir plus bas) **ou à la main**
+  (la saisie manuelle prime). Tout match ayant un résultat officiel — ou dont le coup d'envoi
+  est passé — est **en lecture seule** (garde dans le store + `disabled` UI) ; l'officiel pilote
+  classements et bracket, le pronostic reste affiché en comparaison (✓ exact / ≈ bon résultat / ✗ raté).
 - **PWA offline** : service worker, polices auto-hébergées, `official-results.json` en cache *freshness*.
 
 ## Démarrage
@@ -42,7 +43,8 @@ npm start            # http://localhost:4200
 ## Tests
 
 ```bash
-npm test             # tests unitaires (Vitest) — 55
+npm test             # tests unitaires de l'app (Vitest) — 99
+npm run test:scripts # tests de l'updater de scores (Vitest, env node) — 13
 npm run e2e          # tests end-to-end (Playwright) — 3
 ```
 
@@ -57,7 +59,37 @@ npm run build        # sortie : dist/wcng2026/browser
 
 ## Mettre à jour les résultats officiels
 
-Éditer `public/official-results.json` au fil des vrais matchs, puis redéployer :
+Deux voies alimentent `public/official-results.json` — **la saisie manuelle prime**.
+
+### Automatique (GitHub Actions)
+
+Le workflow [`.github/workflows/update-scores.yml`](.github/workflows/update-scores.yml) tourne
+toutes les ~30 min : il interroge l'API [football-data.org](https://www.football-data.org/)
+(Coupe du Monde), mappe chaque match terminé sur nos ids `M1..M104` (orientation + tirs au but,
+via `TournamentEngine`), valide, et **commit** le fichier si un score est tombé → Vercel redéploie.
+Un match n'est relevé qu'**à partir de 2 h après son coup d'envoi** ; sinon le tick suivant réessaie.
+
+```mermaid
+flowchart LR
+  CRON["GitHub Actions<br/>cron */30 min"] --> SCRIPT["update-official-results.ts"]
+  SCRIPT -->|X-Auth-Token| API["football-data.org"]
+  API --> MAP["map → M1..M104<br/>(orientation + t.a.b.)"]
+  MAP --> MERGE{"absent du fichier<br/>& ≥ 2 h après K.O. ?"}
+  MERGE -->|non| SKIP["inchangé (manuel prime)"]
+  MERGE -->|oui| WRITE["écrit + commit"]
+  WRITE --> VERCEL["Vercel redéploie"]
+```
+
+- **Secret** : `FOOTBALL_DATA_TOKEN` (jeton lecture seule) dans *Settings → Secrets → Actions*.
+- **Manuel / test** : *Actions → Update official scores → Run workflow* (ou `npm run update:scores`,
+  options `FOOTBALL_DATA_TOKEN=… NOW=<ISO> … -- --dry-run`).
+- ⚠️ Vérifier que la **CDM 2026** est couverte par l'**offre gratuite** de l'API (sinon, changer de
+  source — même script). Cron Vercel non utilisé : le **free tier Vercel = 1 cron/jour**, insuffisant.
+
+### Manuelle (correction / fallback)
+
+Éditer `public/official-results.json` puis `git push` (Vercel redéploie). Une valeur saisie à la
+main n'est **jamais écrasée** par l'auto.
 
 ```json
 {
@@ -68,4 +100,4 @@ npm run build        # sortie : dist/wcng2026/browser
 }
 ```
 
-Les matchs concernés passent automatiquement en lecture seule au prochain chargement.
+Les matchs concernés passent en lecture seule au prochain chargement.
