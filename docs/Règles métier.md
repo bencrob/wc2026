@@ -43,7 +43,7 @@ Points **3 / 1 / 0** (victoire / nul / défaite). Départage, dans l'ordre :
   1. un **résultat officiel** existe pour ce match ;
   2. le **coup d'envoi est passé** — dès l'heure de début, le pronostic ne peut plus être modifié.
   La saisie verrouillée est ignorée (garde dans le store + `disabled` en UI — défense en profondeur). Cf. [[Règles techniques#Verrouillage]].
-- **Heure de coup d'envoi** : champ `kickoff` (ISO 8601 + fuseau) du calendrier (`SCHEDULE`), **maintenu à la main** comme les résultats. Tant qu'il est absent pour un match, seul le verrou « résultat officiel » s'applique. Le temps courant vient d'un **port `Clock`** (le domaine ne lit jamais l'horloge directement).
+- **Heure de coup d'envoi** : champ `kickoff` (ISO 8601 + fuseau) du calendrier (`SCHEDULE`), renseigné depuis le calendrier officiel FIFA 2026 (offsets juin/juillet : ET −04, CDT US −05, CST Mexique −06, PT −07). À défaut de kickoff précis, **repli au début du jour du match** (`kickoffMsOf`). Le temps courant vient d'un **port `Clock`** (le domaine ne lit jamais l'horloge directement) ; on peut figer le temps avec `?now=<ISO>` pour prévisualiser/tester les verrous.
 
 ## Comparaison & barème de points
 - Une fois le **résultat officiel intégré**, le **pronostic saisi par le joueur est affiché à côté** du score officiel (ex. `🏟️ Officiel 2–1 · prono 1–1`), avec son verdict.

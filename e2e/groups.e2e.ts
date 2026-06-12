@@ -2,7 +2,14 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Poules', () => {
   test('la saisie d’un score met à jour le classement et la progression', async ({ page }) => {
-    await page.goto('/');
+    // Aucun résultat officiel + horloge figée avant tout coup d'envoi → M1 éditable.
+    await page.route('**/official-results.json', (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({ version: 1, results: {} }),
+      }),
+    );
+    await page.goto('/?now=2026-06-01T00:00:00Z');
 
     // Onglet Poules actif, groupe A déplié : premiers inputs = match M1 (A1 vs A2).
     const inputs = page.locator('input.score-input');
