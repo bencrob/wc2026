@@ -1,39 +1,44 @@
-<section class="leaderboard" aria-label="Classement des joueurs">
-  <div class="head">
-    <h2>Classement</h2>
-    <button mat-icon-button (click)="refresh()" aria-label="Rafraîchir le classement" title="Rafraîchir">
-      <mat-icon>refresh</mat-icon>
-    </button>
-  </div>
+<main class="container">
+  <section class="leaderboard" aria-label="Classement des joueurs">
+    <div class="head">
+      <button mat-icon-button routerLink="/" aria-label="Retour à l'accueil" title="Retour">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Classement</h1>
+      <button mat-icon-button (click)="refresh()" aria-label="Rafraîchir le classement" title="Rafraîchir">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
 
-  @if (loading()) {
-    <p class="muted">Chargement du classement…</p>
-  } @else if (empty()) {
-    <p class="muted">
-      Aucun classement pour l'instant — il se met à jour automatiquement au fil des résultats officiels.
-    </p>
-  } @else {
-    <table class="board">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Joueur</th>
-          <th scope="col">Pts</th>
-          <th scope="col">Exacts</th>
-          <th scope="col">Bons résultats</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of vm(); track row.pseudo) {
-          <tr [class.me]="row.me">
-            <td>{{ row.rank }}</td>
-            <td>{{ row.pseudo }}</td>
-            <td class="pts">{{ row.points }}</td>
-            <td>{{ row.exact }}</td>
-            <td>{{ row.outcome }}</td>
+    @if (loading()) {
+      <p class="muted">Chargement du classement…</p>
+    } @else if (empty()) {
+      <p class="muted">
+        Aucun classement pour l'instant — il se met à jour automatiquement au fil des résultats officiels.
+      </p>
+    } @else {
+      <table class="board">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Joueur</th>
+            <th scope="col">Pts</th>
+            <th scope="col">Exacts</th>
+            <th scope="col">Bons résultats</th>
           </tr>
-        }
-      </tbody>
-    </table>
-  }
-</section>
+        </thead>
+        <tbody>
+          @for (row of vm(); track row.pseudo) {
+            <tr [class.me]="row.me">
+              <td>{{ row.rank }}</td>
+              <td>{{ row.pseudo }}</td>
+              <td class="pts">{{ row.points }}</td>
+              <td>{{ row.exact }}</td>
+              <td>{{ row.outcome }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+</main>

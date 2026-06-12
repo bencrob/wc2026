@@ -15,7 +15,7 @@ export class SupabaseProfileAdapter implements ProfilePort {
   private readonly supabase = inject(SupabaseClientProvider);
 
   async get(userId: string): Promise<{ pseudo: string } | null> {
-    const client = this.supabase.client;
+    const client = await this.supabase.getClient();
     if (!client) return null;
     const { data, error } = await client
       .from('profiles')
@@ -27,7 +27,7 @@ export class SupabaseProfileAdapter implements ProfilePort {
   }
 
   async setPseudo(userId: string, pseudo: string): Promise<Result<void>> {
-    const client = this.supabase.client;
+    const client = await this.supabase.getClient();
     if (!client) return err('Synchronisation cloud non configurée.');
     const trimmed = pseudo.trim();
     if (trimmed.length < 2 || trimmed.length > 24) {
@@ -43,7 +43,7 @@ export class SupabaseProfileAdapter implements ProfilePort {
   }
 
   async leaderboard(): Promise<readonly LeaderboardRow[]> {
-    const client = this.supabase.client;
+    const client = await this.supabase.getClient();
     if (!client) return [];
     const { data, error } = await client
       .from('leaderboard')
