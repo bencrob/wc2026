@@ -77,6 +77,23 @@ describe('buildResults — group stage', () => {
     expect(results['M1']).toBeUndefined();
     expect(addedIds).not.toContain('M1');
   });
+
+  test('reports diagnostic counts', () => {
+    const out = buildResults([feedMatch('A1', 'A2', 2, 0), feedMatch('A1', 'A4', 1, 0)], {}, ALWAYS_DUE);
+    expect(out.finishedCount).toBe(2);
+    expect(out.recognizedCount).toBe(2);
+    expect(out.mappedCount).toBe(2);
+    expect([...out.addedIds].sort()).toEqual(['M1', 'M5']);
+  });
+
+  test('flags finished-but-unmapped (wrong-edition smell)', () => {
+    // A1 (Mexique) vs B1 (Canada): not a group fixture, and KO unseeded (empty base) → 0 mapped.
+    const out = buildResults([feedMatch('A1', 'B1', 1, 0)], {}, ALWAYS_DUE);
+    expect(out.finishedCount).toBe(1);
+    expect(out.recognizedCount).toBe(1);
+    expect(out.mappedCount).toBe(0);
+    expect(out.addedIds).toEqual([]);
+  });
 });
 
 describe('buildResults — knockout', () => {

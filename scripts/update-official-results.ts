@@ -85,8 +85,18 @@ async function main(): Promise<void> {
     return ko !== undefined && now >= ko + DUE_DELAY_MS;
   };
 
-  const { results, addedIds, unmappedTeams } = buildResults(feed, base, { isDue });
+  const { results, addedIds, unmappedTeams, finishedCount, recognizedCount, mappedCount } =
+    buildResults(feed, base, { isDue });
 
+  console.log(
+    `Flux : ${feed.length} match(s) reçus · ${finishedCount} terminé(s) · ` +
+      `${recognizedCount} équipes reconnues · ${mappedCount} mappé(s) · ${addedIds.length} nouveau(x).`,
+  );
+  if (finishedCount > 0 && mappedCount === 0) {
+    console.warn(
+      '⚠️ Des matchs terminés mais aucun mappé : édition/couverture API suspecte (mauvaise compétition ?).',
+    );
+  }
   if (unmappedTeams.length > 0) {
     console.warn(`⚠️ Équipes non mappées : ${unmappedTeams.join(', ')}`);
   }
