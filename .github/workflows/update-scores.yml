@@ -1,0 +1,53 @@
+name: Update official scores
+
+# Récupère les scores officiels ~toutes les 30 min pendant le tournoi et commit
+# public/official-results.json si un nouveau résultat est tombé (→ Vercel redéploie).
+# Le script no-op proprement hors fenêtre / sans token / sans nouveauté.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      now:
+        description: "Override de l'heure courante (ISO) pour tester"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-scores
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Update official results
+        run: npm run update:scores
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+          NOW: ${{ inputs.now }}
+
+      - name: Commit & push if changed
+        run: |
+          if git diff --quiet -- public/official-results.json; then
+            echo "Aucun changement."
+          else
+            git config user.name "score-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add public/official-results.json
+            git commit -m "chore(results): auto-update official scores"
+            git push
+          fi
