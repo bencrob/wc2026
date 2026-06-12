@@ -8,6 +8,8 @@ import {
 } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
 import { AccountSyncService } from './application/account-sync.service';
 import { TournamentStore } from './application/tournament.store';
 import {
@@ -36,6 +38,7 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideAnimationsAsync(),
     provideHttpClient(),
+    provideRouter(routes),
     // Câblage des ports (DIP) → implémentations concrètes
     // PERSISTENCE = facade write-through (localStorage synchrone + push distant débouncé)
     { provide: PERSISTENCE, useExisting: SyncPersistenceFacade },

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { App } from './app';
 import { TournamentStore } from './application/tournament.store';
@@ -26,8 +27,6 @@ import {
 
 /** Surface interne du shell exposée aux tests (membres `protected`). */
 interface AppInternals {
-  selected(): number;
-  goRelative(delta: number): void;
   onExport(): void;
   onImport(event: Event): Promise<void>;
   onReset(): void;
@@ -45,6 +44,7 @@ function setup(): Harness {
     imports: [App],
     providers: [
       provideAnimationsAsync(),
+      provideRouter([]),
       { provide: PERSISTENCE, useValue: new PersistenceStub() },
       { provide: OFFICIAL_RESULTS, useValue: new OfficialResultsStub() },
       { provide: FILE_IO, useValue: fileIo },
@@ -70,19 +70,6 @@ function fileInputEvent(): Event {
 
 describe('App', () => {
   beforeEach(() => TestBed.resetTestingModule());
-
-  describe('goRelative', () => {
-    test('borne la sélection dans [0, 3]', () => {
-      const { app } = setup();
-      app.goRelative(-1);
-      expect(app.selected()).toBe(0);
-      app.goRelative(1);
-      app.goRelative(1);
-      app.goRelative(1);
-      app.goRelative(1);
-      expect(app.selected()).toBe(3);
-    });
-  });
 
   describe('onExport', () => {
     test('télécharge les pronostics via le port fichier', () => {
