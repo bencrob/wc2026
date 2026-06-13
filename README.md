@@ -17,6 +17,56 @@ pronostics aux résultats officiels. Application **statique, hors-ligne (PWA)** 
 optionnel** (Supabase) pour la sauvegarde par compte, l'authentification (Google ou e-mail) et le
 classement entre joueurs — l'app reste **100 % fonctionnelle en local** si le cloud n'est pas configuré.
 
+## Vue d'ensemble du fonctionnement
+
+```mermaid
+flowchart TB
+  USER(["👤 Joueur"])
+
+  subgraph BROWSER["📱 Navigateur / PWA (offline-first)"]
+    SPA["App Angular — zoneless, signals<br/>domain · store · presentation"]
+    LS[("localStorage<br/>pronostics + session")]
+    SW["Service Worker<br/>cache app + offline + invite MAJ"]
+    SPA <--> LS
+    SW -.->|sert l'app| SPA
+  end
+
+  subgraph VERCEL["▲ Vercel — hébergement statique"]
+    HOST["Build Angular (CDN)"]
+    OFF[("official-results.json<br/>résultats officiels")]
+  end
+
+  subgraph SUPA["☁️ Supabase — cloud optionnel"]
+    AUTH["Auth · Google / e-mail OTP"]
+    DB[("Postgres + RLS<br/>profiles · predictions · leaderboard")]
+  end
+
+  subgraph CI["⚙️ Automatisation des scores"]
+    CRON["cron-job.org (horaire)<br/>+ cron GitHub (secours 3 h)"]
+    GHA["GitHub Actions<br/>update-scores.yml"]
+    SRC["football-data.org"]
+  end
+
+  USER --> SPA
+  HOST -->|charge| SPA
+  SPA -->|GET officiels| OFF
+  SPA -->|login| AUTH
+  SPA <-->|connecté : sync write-through| DB
+  AUTH --- DB
+
+  CRON --> GHA
+  GHA -->|fetch scores| SRC
+  GHA -->|commit si nouveau| OFF
+  OFF -->|redéploie| HOST
+  GHA -->|recalcul| DB
+```
+
+**En clair :** le joueur charge l'app (servie en statique par Vercel, utilisable **hors-ligne** via le
+service worker). Ses pronostics vont d'abord en **localStorage** ; s'il **se connecte** (Google ou
+e-mail OTP), ils sont **synchronisés** dans Supabase (write-through) et il entre au **classement**.
+En parallèle, **cron-job.org** déclenche **GitHub Actions** qui récupère les **scores officiels**,
+met à jour `official-results.json` (→ Vercel redéploie) et **recalcule le classement** dans Supabase.
+
 ## Architecture (SOLID, hexagonale)
 
 ```
