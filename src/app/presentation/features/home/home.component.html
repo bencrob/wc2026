@@ -7,12 +7,15 @@
       <span>{{ p.total }} / 104 matchs renseignés ({{ p.pct }} %)</span>
       <span class="muted">Poules {{ p.groupsDone }}/72 · Tableau final {{ p.koDone }}/32</span>
     </div>
-    <mat-progress-bar
-      mode="determinate"
-      [value]="p.pct"
-      aria-label="Progression globale"
-      [attr.aria-valuetext]="progressAria()"
-    />
+    <div class="progress-track">
+      <mat-progress-bar
+        mode="determinate"
+        [value]="p.pct"
+        aria-label="Progression globale"
+        [attr.aria-valuetext]="progressAria()"
+      />
+      <span class="ball" [style.left.%]="p.pct" aria-hidden="true">⚽</span>
+    </div>
     <div class="pronostic">
       <span class="score">🏆 Mon score : {{ s.points }} pt(s)</span>
       @if (hasOfficial()) {

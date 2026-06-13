@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 
 /**
  * Saisie d'un score (0..N). Verrouillé (`disabled`) quand un résultat officiel existe.
@@ -20,6 +20,8 @@ export class ScoreInputComponent {
   protected readonly lockTitle = computed(() =>
     this.disabled() ? 'Résultat officiel — saisie verrouillée' : '',
   );
+  /** Micro-anim « pop » jouée à chaque saisie de score valide. */
+  protected readonly flash = signal(false);
 
   onInput(event: Event): void {
     const input = event.target;
@@ -30,6 +32,9 @@ export class ScoreInputComponent {
       return;
     }
     const n = Number(raw);
-    if (Number.isInteger(n) && n >= 0) this.valueChange.emit(n);
+    if (Number.isInteger(n) && n >= 0) {
+      this.valueChange.emit(n);
+      this.flash.set(true);
+    }
   }
 }
