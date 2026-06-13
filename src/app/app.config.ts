@@ -11,6 +11,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { AccountSyncService } from './application/account-sync.service';
+import { PwaUpdateService } from './application/pwa-update.service';
 import { TournamentStore } from './application/tournament.store';
 import {
   AUTH,
@@ -54,6 +55,8 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => inject(TournamentStore).loadOfficial()),
     // Démarre l'écoute de session (import/sync de compte à la connexion)
     provideAppInitializer(() => inject(AccountSyncService).start()),
+    // Invite de mise à jour PWA (évite l'état hybride ancien/nouveau bundle)
+    provideAppInitializer(() => inject(PwaUpdateService).start()),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
