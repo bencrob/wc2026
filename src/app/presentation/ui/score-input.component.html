@@ -4,9 +4,11 @@
   inputmode="numeric"
   class="score-input"
   [class.locked]="disabled()"
+  [class.flash]="flash()"
   [value]="displayValue()"
   [disabled]="disabled()"
   [attr.aria-label]="ariaLabel()"
   [title]="lockTitle()"
   (input)="onInput($event)"
+  (animationend)="flash.set(false)"
 />

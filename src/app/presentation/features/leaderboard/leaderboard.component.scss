@@ -48,8 +48,49 @@
   .pts {
     font-weight: 700;
   }
+  .rank {
+    font-weight: 700;
+  }
   tr.me {
     background: var(--wc-qualified, rgba(25, 118, 210, 0.12));
     font-weight: 600;
+  }
+  // 1re place : liseré doré + médaille qui scintille
+  tr.top .rank {
+    color: #b8860b;
+  }
+}
+
+// Apparition en cascade des lignes + scintillement du trophée (coupé si réduction d'animations)
+@media (prefers-reduced-motion: no-preference) {
+  .board tbody tr {
+    animation: lb-row-in 0.35s both;
+  }
+  .board tr.top .rank {
+    display: inline-block;
+    animation: lb-sparkle 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes lb-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lb-sparkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    transform: scale(1.18) rotate(-6deg);
+    filter: drop-shadow(0 0 4px gold);
   }
 }

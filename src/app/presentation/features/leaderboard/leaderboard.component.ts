@@ -5,11 +5,12 @@ import { RouterLink } from '@angular/router';
 import { AccountSyncService } from '../../../application/account-sync.service';
 import { PROFILE } from '../../../application/tokens';
 import { LeaderboardRow } from '../../../domain/ports/profile.port';
+import { CountUpDirective } from '../../ui/count-up.directive';
 
 @Component({
   selector: 'wc-leaderboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, RouterLink],
+  imports: [MatButtonModule, MatIconModule, RouterLink, CountUpDirective],
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
 })
@@ -20,17 +21,22 @@ export class LeaderboardComponent {
   protected readonly loading = signal(true);
   private readonly rows = signal<readonly LeaderboardRow[]>([]);
 
-  /** Lignes prêtes à afficher (rang + surlignage du joueur courant) — zéro logique en template. */
+  /** Lignes prêtes à afficher (rang/médaille + surlignage joueur) — zéro logique en template. */
   protected readonly vm = computed(() => {
     const me = this.account.pseudo();
-    return this.rows().map((r, i) => ({
-      rank: i + 1,
-      pseudo: r.pseudo,
-      points: r.points,
-      exact: r.exact,
-      outcome: r.outcome,
-      me: me !== null && r.pseudo === me,
-    }));
+    return this.rows().map((r, i) => {
+      const medal = ['🏆', '🥈', '🥉'][i] ?? '';
+      return {
+        badge: medal !== '' ? medal : String(i + 1),
+        top: i === 0,
+        delayMs: i * 40,
+        pseudo: r.pseudo,
+        points: r.points,
+        exact: r.exact,
+        outcome: r.outcome,
+        me: me !== null && r.pseudo === me,
+      };
+    });
   });
   protected readonly empty = computed(() => !this.loading() && this.vm().length === 0);
 

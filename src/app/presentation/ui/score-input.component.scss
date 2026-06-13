@@ -23,3 +23,22 @@
 .score-input::-webkit-inner-spin-button {
   margin: 0;
 }
+
+// ⚡ « Pop » à chaque saisie de score (coupé si réduction d'animations)
+@media (prefers-reduced-motion: no-preference) {
+  .score-input.flash {
+    animation: score-pop 0.4s ease;
+  }
+}
+@keyframes score-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mat-sys-primary, #1976d2) 60%, transparent);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

@@ -29,10 +29,10 @@
         </thead>
         <tbody>
           @for (row of vm(); track row.pseudo) {
-            <tr [class.me]="row.me">
-              <td>{{ row.rank }}</td>
+            <tr [class.me]="row.me" [class.top]="row.top" [style.animation-delay.ms]="row.delayMs">
+              <td class="rank">{{ row.badge }}</td>
               <td>{{ row.pseudo }}</td>
-              <td class="pts">{{ row.points }}</td>
+              <td class="pts"><span [wcCountUp]="row.points">0</span></td>
               <td>{{ row.exact }}</td>
               <td>{{ row.outcome }}</td>
             </tr>
