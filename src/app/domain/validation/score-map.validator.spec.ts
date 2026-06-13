@@ -28,6 +28,24 @@ describe('ScoreMapValidator.validatePredictions', () => {
     const r = v.validatePredictions({ version: 1, scores: { M1: { home: 0, away: 0, winner: 'home' } } });
     expect(r.ok).toBe(false);
   });
+
+  test('tolère une saisie partielle (un seul côté) sans tout rejeter', () => {
+    const r = v.validatePredictions({
+      version: 1,
+      scores: { M1: { home: 2 }, M2: { away: 1 }, M3: { home: 3, away: 3 } },
+    });
+    expect(r.ok).toBe(true);
+    expect(r.ok && r.value).toEqual({ M1: { home: 2 }, M2: { away: 1 }, M3: { home: 3, away: 3 } });
+  });
+
+  test('ignore les entrées vides', () => {
+    const r = v.validatePredictions({ version: 1, scores: { M1: {}, M2: { home: 1 } } });
+    expect(r.ok && r.value).toEqual({ M2: { home: 1 } });
+  });
+
+  test('refuse un côté présent mais non entier (même partiel)', () => {
+    expect(v.validatePredictions({ version: 1, scores: { M1: { home: 1.5 } } }).ok).toBe(false);
+  });
 });
 
 describe('ScoreMapValidator.validateOfficial', () => {
