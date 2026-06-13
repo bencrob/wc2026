@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>Connexion par e-mail</h2>
+
+<mat-dialog-content>
+  @if (step() === 'email') {
+    <p class="hint">Recevez un code à usage unique par e-mail — sans mot de passe.</p>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Adresse e-mail</mat-label>
+      <input
+        matInput
+        type="email"
+        autocomplete="email"
+        [ngModel]="email()"
+        (ngModelChange)="email.set($event)"
+        (keyup.enter)="sendCode()"
+      />
+    </mat-form-field>
+  } @else {
+    <p class="hint">Code envoyé à {{ email() }}. Saisissez-le ci-dessous.</p>
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Code reçu</mat-label>
+      <input
+        matInput
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        [ngModel]="code()"
+        (ngModelChange)="code.set($event)"
+        (keyup.enter)="verify()"
+      />
+    </mat-form-field>
+  }
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="busy()">Annuler</button>
+  @if (step() === 'email') {
+    <button mat-flat-button (click)="sendCode()" [disabled]="busy()">Envoyer le code</button>
+  } @else {
+    <button mat-flat-button (click)="verify()" [disabled]="busy()">Valider</button>
+  }
+</mat-dialog-actions>
