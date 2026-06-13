@@ -42,7 +42,9 @@ export class SupabaseAuthAdapter implements AuthPort {
   onChange(cb: (user: AuthUser | null) => void): () => void {
     this.listeners.add(cb);
     cb(this._user()); // émet l'état courant (gère l'abonnement tardif)
-    void this.init(); // déclenche le chargement du client + la restauration de session
+    // Perf : ne charge Supabase (≈209 kB) que s'il y a une session à restaurer
+    // ou un retour OAuth à traiter. Un visiteur anonyme ne le télécharge jamais.
+    if (hasStoredSession() || isOAuthRedirect()) void this.init();
     return () => {
       this.listeners.delete(cb);
     };
@@ -65,4 +67,25 @@ export class SupabaseAuthAdapter implements AuthPort {
 function toUser(user: { id: string; email?: string } | null): AuthUser | null {
   if (!user) return null;
   return { id: user.id, email: user.email ?? '' };
+}
+
+/** Une session Supabase est-elle déjà stockée localement ? (clé `sb-<ref>-auth-token`) */
+function hasStoredSession(): boolean {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('sb-') && key.endsWith('-auth-token')) return true;
+    }
+  } catch {
+    /* localStorage indisponible */
+  }
+  return false;
+}
+
+/** L'URL courante est-elle un retour de redirection OAuth à traiter ? */
+function isOAuthRedirect(): boolean {
+  if (typeof window === 'undefined') return false;
+  const hash = window.location.hash;
+  if (hash.includes('access_token=') || hash.includes('error=')) return true;
+  return new URLSearchParams(window.location.search).has('code');
 }
