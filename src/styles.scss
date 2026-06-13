@@ -50,15 +50,6 @@ body {
   --wc-third: color-mix(in srgb, var(--mat-sys-tertiary) 22%, white);
 }
 
-/* Mode sombre : bascule Material en thème foncé et adapte les surlignages
-   (teintes translucides → contraste correct quelle que soit la couleur du thème). */
-body.wc-dark {
-  color-scheme: dark;
-  --wc-qualified: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
-  --wc-winner: color-mix(in srgb, var(--mat-sys-primary) 38%, transparent);
-  --wc-third: color-mix(in srgb, var(--mat-sys-tertiary) 32%, transparent);
-}
-
 /* Défaut — palette complète de la v1 (bleu profond + or + vert, surlignages d'origine) */
 /* 🌈 Mondial 2026 — identité officielle « We Are 26 » :
    spectre magenta → violet → cyan, accent doré pour le champion. */
@@ -141,6 +132,18 @@ body.theme-maroc {
   --mat-sys-surface-tint: #c1272d;
   --wc-toolbar: linear-gradient(135deg, #c1272d, #006233);
   --wc-stripe: linear-gradient(90deg, #c1272d 0 50%, #006233 50% 100%);
+}
+
+/* Mode sombre : bascule Material en thème foncé et adapte les surlignages.
+   ⚠️ DOIT rester APRÈS tous les blocs `body.theme-*` : à spécificité égale, la
+   règle la plus tardive gagne. Sinon un thème (ex. `theme-default`) qui définit
+   un surlignage clair opaque resterait appliqué en mode sombre → texte illisible.
+   Teintes translucides → contraste correct quelle que soit la couleur du thème. */
+body.wc-dark {
+  color-scheme: dark;
+  --wc-qualified: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+  --wc-winner: color-mix(in srgb, var(--mat-sys-primary) 38%, transparent);
+  --wc-third: color-mix(in srgb, var(--mat-sys-tertiary) 32%, transparent);
 }
 
 /* Drapeaux nationaux : webfont auto-hébergée (Windows ne rend pas les emojis-drapeaux).
