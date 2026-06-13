@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, afterNextRender, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { AccountSyncService } from './application/account-sync.service';
+import { NotificationsService } from './application/notifications.service';
 import { TournamentStore } from './application/tournament.store';
 import { FILE_IO } from './application/tokens';
 import { ThemeService } from './presentation/theming/theme.service';
@@ -32,6 +33,13 @@ export class App {
   private readonly fileIo = inject(FILE_IO);
   private readonly snack = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
+  private readonly notifications = inject(NotificationsService);
+
+  constructor() {
+    // Après le 1er rendu (les officiels sont chargés par l'app-initializer) :
+    // résumé des nouveaux résultats / rappel des verrouillages imminents.
+    afterNextRender(() => this.notifications.checkOnStartup());
+  }
 
   /** Session de compte (cloud) pour la barre d'outils. */
   protected readonly user = this.account.user;
