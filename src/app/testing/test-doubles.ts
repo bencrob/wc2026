@@ -52,6 +52,12 @@ export class AuthStub implements AuthPort {
   async signInWithGoogle(): Promise<void> {
     /* no-op : la session est pilotée par set() dans les tests */
   }
+  async requestEmailCode(): Promise<Result<void>> {
+    return ok(undefined);
+  }
+  async verifyEmailCode(): Promise<Result<void>> {
+    return ok(undefined);
+  }
   async signOut(): Promise<void> {
     this.set(null);
   }

@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { DraftScoreMap } from '../domain/models';
 import { AuthUser } from '../domain/ports/auth.port';
+import { Result } from '../domain/validation/result';
 import { TournamentStore } from './tournament.store';
 import { AUTH, PROFILE, REMOTE_PREDICTIONS, SYNC_PROMPTS } from './tokens';
 
@@ -39,6 +40,16 @@ export class AccountSyncService {
     } catch (error) {
       this.prompts.notify(error instanceof Error ? error.message : 'Connexion impossible.');
     }
+  }
+
+  /** Connexion par e-mail : envoie un code OTP (aucune redirection). */
+  requestEmailCode(email: string): Promise<Result<void>> {
+    return this.auth.requestEmailCode(email);
+  }
+
+  /** Vérifie le code OTP ; la session ouverte déclenche le flux pseudo/sync habituel. */
+  verifyEmailCode(email: string, code: string): Promise<Result<void>> {
+    return this.auth.verifyEmailCode(email, code);
   }
 
   async signOut(): Promise<void> {

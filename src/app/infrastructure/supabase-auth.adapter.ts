@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { AuthPort, AuthUser } from '../domain/ports/auth.port';
+import { Result, err, ok } from '../domain/validation/result';
 import { SupabaseClientProvider } from './supabase.client';
 
 /**
@@ -27,11 +28,30 @@ export class SupabaseAuthAdapter implements AuthPort {
   async signInWithGoogle(): Promise<void> {
     const client = await this.supabase.getClient();
     if (!client) throw new Error('Synchronisation cloud non configurée.');
+    await this.init(); // s'assure que l'écoute de session est branchée
     const { error } = await client.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin },
     });
     if (error) throw error;
+  }
+
+  async requestEmailCode(email: string): Promise<Result<void>> {
+    const client = await this.supabase.getClient();
+    if (!client) return err('Synchronisation cloud non configurée.');
+    await this.init(); // l'OTP n'implique aucune redirection → init explicite ici
+    const { error } = await client.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true },
+    });
+    return error ? err(error.message) : ok(undefined);
+  }
+
+  async verifyEmailCode(email: string, code: string): Promise<Result<void>> {
+    const client = await this.supabase.getClient();
+    if (!client) return err('Synchronisation cloud non configurée.');
+    const { error } = await client.auth.verifyOtp({ email, token: code.trim(), type: 'email' });
+    return error ? err(error.message) : ok(undefined);
   }
 
   async signOut(): Promise<void> {

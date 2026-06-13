@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -30,6 +31,7 @@ export class App {
   protected readonly account = inject(AccountSyncService);
   private readonly fileIo = inject(FILE_IO);
   private readonly snack = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
 
   /** Session de compte (cloud) pour la barre d'outils. */
   protected readonly user = this.account.user;
@@ -50,8 +52,16 @@ export class App {
     })),
   );
 
-  protected signIn(): void {
+  protected signInGoogle(): void {
     void this.account.signIn();
+  }
+
+  /** Ouvre la connexion par e-mail (code OTP, sans redirection) — dialogue chargé à la demande. */
+  protected async openEmailLogin(): Promise<void> {
+    const { EmailLoginComponent } = await import(
+      './presentation/features/email-login/email-login.component'
+    );
+    this.dialog.open(EmailLoginComponent, { autoFocus: true, restoreFocus: true });
   }
 
   protected signOut(): void {

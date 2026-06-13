@@ -1,0 +1,16 @@
+.full {
+  width: 100%;
+  min-width: 18rem;
+}
+
+.hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant, #666);
+}
+
+.error {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--mat-sys-error, #dc3545);
+}
