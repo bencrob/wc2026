@@ -16,8 +16,6 @@
     gap: 0.5rem;
     font-size: 1.05rem;
     font-weight: 700;
-    color: inherit;
-    text-decoration: none;
   }
 
   .brand-logo {
@@ -64,8 +62,61 @@
   }
 }
 
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.progress {
+  margin-bottom: 1rem;
+
+  .progress-label {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.35rem;
+  }
+  .muted {
+    opacity: 0.7;
+  }
+}
+
+.pronostic {
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  background: var(--mat-sys-surface-container-high, #eee);
+
+  .ok { color: #198754; font-weight: 600; }
+  .mid { color: #b8860b; font-weight: 600; }
+  .ko { color: #dc3545; font-weight: 600; }
+  .muted { opacity: 0.7; }
+  .score { color: var(--mat-sys-primary); font-weight: 700; }
+}
+
+.tabs {
+  margin-top: 0.5rem;
+}
+
+.tab-ph {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant, #777);
+  font-size: 0.85rem;
+}
+
 @media (max-width: 599px) {
   .app-bar .title {
     font-size: 0.9rem;
+  }
+  .container {
+    padding: 0.5rem;
+  }
+  .progress .progress-label {
+    font-size: 0.78rem;
   }
 }

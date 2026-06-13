@@ -1,12 +1,9 @@
 <mat-toolbar class="app-bar" role="banner">
-  <a class="title" routerLink="/" aria-label="Accueil Pronoscup 2026">
+  <h1 class="title">
     <img src="logo-2026.svg" alt="" class="brand-logo" />
     Pronoscup 2026
-  </a>
+  </h1>
   <span class="spacer"></span>
-  <button mat-icon-button routerLink="/classement" aria-label="Classement" title="Classement">
-    <mat-icon>leaderboard</mat-icon>
-  </button>
   <button
     mat-icon-button
     (click)="theme.toggleDark()"
@@ -65,4 +62,71 @@
   (change)="onImport($event)"
 />
 
-<router-outlet />
+<main class="container">
+  @let p = store.progress();
+  @let s = store.comparisonSummary();
+
+  <section class="progress" aria-label="Progression">
+    <div class="progress-label">
+      <span>{{ p.total }} / 104 matchs renseignés ({{ p.pct }} %)</span>
+      <span class="muted">Poules {{ p.groupsDone }}/72 · Tableau final {{ p.koDone }}/32</span>
+    </div>
+    <mat-progress-bar
+      mode="determinate"
+      [value]="p.pct"
+      aria-label="Progression globale"
+      [attr.aria-valuetext]="progressAria()"
+    />
+    <div class="pronostic">
+      <span class="score">🏆 Mon score : {{ s.points }} pt(s)</span>
+      @if (hasOfficial()) {
+        · 🏟️ {{ s.official }} résultat(s) officiel(s) :
+        <span class="ok">{{ s.exact }} exact(s)</span> ·
+        <span class="mid">{{ s.outcome }} bon(s) résultat(s)</span> ·
+        <span class="ko">{{ s.wrong }} raté(s)</span>
+        @if (s.noPrediction) {
+          · <span class="muted">{{ s.noPrediction }} sans prono</span>
+        }
+      } @else {
+        <span class="muted">· en attente des premiers résultats officiels</span>
+      }
+    </div>
+  </section>
+
+  <mat-tab-group
+    class="tabs"
+    aria-label="Sections du tournoi"
+    [mat-stretch-tabs]="false"
+    animationDuration="0ms"
+    [selectedIndex]="selected()"
+    (selectedIndexChange)="selected.set($event)"
+    wcSwipe
+    (swipeLeft)="goRelative(1)"
+    (swipeRight)="goRelative(-1)"
+  >
+    <mat-tab label="📋 Poules">
+      <wc-groups />
+    </mat-tab>
+    <mat-tab label="🥉 Meilleurs 3es">
+      @defer (on idle) {
+        <wc-thirds />
+      } @placeholder {
+        <div class="tab-ph">Chargement…</div>
+      }
+    </mat-tab>
+    <mat-tab label="🗺️ Tableau final">
+      @defer (on idle) {
+        <wc-knockout />
+      } @placeholder {
+        <div class="tab-ph">Chargement…</div>
+      }
+    </mat-tab>
+    <mat-tab label="🏆 Classement">
+      @defer (on idle) {
+        <wc-leaderboard />
+      } @placeholder {
+        <div class="tab-ph">Chargement…</div>
+      }
+    </mat-tab>
+  </mat-tab-group>
+</main>

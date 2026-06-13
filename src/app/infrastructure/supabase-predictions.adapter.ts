@@ -15,7 +15,7 @@ export class SupabasePredictionsAdapter implements RemotePredictionsPort {
   private readonly validator = new ScoreMapValidator();
 
   async load(userId: string): Promise<DraftScoreMap | null> {
-    const client = await this.supabase.getClient();
+    const client = this.supabase.client;
     if (!client) return null;
     const { data, error } = await client
       .from('predictions')
@@ -31,7 +31,7 @@ export class SupabasePredictionsAdapter implements RemotePredictionsPort {
   }
 
   async save(userId: string, map: DraftScoreMap): Promise<void> {
-    const client = await this.supabase.getClient();
+    const client = this.supabase.client;
     if (!client) return;
     const { error } = await client.from('predictions').upsert(
       { user_id: userId, scores: map, version: SCHEMA_VERSION },

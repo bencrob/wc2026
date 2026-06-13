@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
 import { AccountSyncService } from '../../../application/account-sync.service';
 import { PROFILE } from '../../../application/tokens';
 import { LeaderboardRow } from '../../../domain/ports/profile.port';
@@ -9,7 +8,7 @@ import { LeaderboardRow } from '../../../domain/ports/profile.port';
 @Component({
   selector: 'wc-leaderboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, RouterLink],
+  imports: [MatButtonModule, MatIconModule],
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
 })
