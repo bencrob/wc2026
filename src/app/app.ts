@@ -1,20 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { AccountSyncService } from './application/account-sync.service';
 import { TournamentStore } from './application/tournament.store';
 import { FILE_IO } from './application/tokens';
 import { ThemeService } from './presentation/theming/theme.service';
-import { GroupsComponent } from './presentation/features/groups/groups.component';
-import { KnockoutComponent } from './presentation/features/knockout/knockout.component';
-import { LeaderboardComponent } from './presentation/features/leaderboard/leaderboard.component';
-import { ThirdsComponent } from './presentation/features/thirds/thirds.component';
-import { SwipeDirective } from './presentation/ui/swipe.directive';
 
 @Component({
   selector: 'wc-root',
@@ -24,21 +18,14 @@ import { SwipeDirective } from './presentation/ui/swipe.directive';
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatProgressBarModule,
-    MatTabsModule,
-    SwipeDirective,
-    GroupsComponent,
-    ThirdsComponent,
-    KnockoutComponent,
-    LeaderboardComponent,
+    RouterOutlet,
+    RouterLink,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
-  /** Onglet actif — sert à ne monter QUE le contenu visible (perf : pas de re-render des tables masquées). */
-  protected readonly selected = signal(0);
-  protected readonly store = inject(TournamentStore);
+  private readonly store = inject(TournamentStore);
   protected readonly theme = inject(ThemeService);
   protected readonly account = inject(AccountSyncService);
   private readonly fileIo = inject(FILE_IO);
@@ -62,15 +49,6 @@ export class App {
       icon: this.theme.current() === t.id ? 'check' : 'circle',
     })),
   );
-  protected readonly progressAria = computed(
-    () => `${this.store.progress().total} sur 104 matchs renseignés`,
-  );
-  protected readonly hasOfficial = computed(() => this.store.comparisonSummary().official > 0);
-
-  /** Change d'onglet relativement (swipe) en restant dans [0, 3]. */
-  protected goRelative(delta: number): void {
-    this.selected.set(Math.min(3, Math.max(0, this.selected() + delta)));
-  }
 
   protected signIn(): void {
     void this.account.signIn();
