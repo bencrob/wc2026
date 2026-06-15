@@ -36,12 +36,10 @@
         width: 1.6rem;
       }
       .app-splash__spinner {
+        display: block;
         width: 40px;
         height: 40px;
         margin: 3.5rem auto;
-        font-size: 34px;
-        line-height: 40px;
-        text-align: center;
         animation: app-splash-bounce 0.8s ease-in-out infinite;
       }
       @keyframes app-splash-bounce {
@@ -64,7 +62,7 @@
     <wc-root>
       <div class="app-splash">
         <div class="app-splash__bar"><img src="favicon.svg" alt="" /> Pronoscup 2026</div>
-        <div class="app-splash__spinner" role="status" aria-label="Chargement…">⚽</div>
+        <img class="app-splash__spinner" src="ball.svg" alt="" role="status" aria-label="Chargement…" />
       </div>
     </wc-root>
     <noscript>Veuillez activer JavaScript pour utiliser Pronoscup 2026.</noscript>

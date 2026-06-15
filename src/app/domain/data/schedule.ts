@@ -47,7 +47,7 @@ export const SCHEDULE: Readonly<Record<MatchId, MatchSchedule>> = {
   M34: { date: '20 juin', venue: 'Estadio BBVA, Monterrey', kickoff: '2026-06-20T22:00:00-06:00' },
   M35: { date: '25 juin', venue: 'Arrowhead Stadium, Kansas City', kickoff: '2026-06-25T18:00:00-05:00' },
   M36: { date: '25 juin', venue: 'AT&T Stadium, Dallas', kickoff: '2026-06-25T18:00:00-05:00' },
-  M37: { date: '15 juin', venue: 'Lumen Field, Seattle', kickoff: '2026-06-15T14:00:00-07:00' },
+  M37: { date: '15 juin', venue: 'Lumen Field, Seattle', kickoff: '2026-06-15T12:00:00-07:00' },
   M38: { date: '15 juin', venue: 'SoFi Stadium, Los Angeles', kickoff: '2026-06-15T18:00:00-07:00' },
   M39: { date: '21 juin', venue: 'SoFi Stadium, Los Angeles', kickoff: '2026-06-21T12:00:00-07:00' },
   M40: { date: '21 juin', venue: 'BC Place, Vancouver', kickoff: '2026-06-21T18:00:00-07:00' },
