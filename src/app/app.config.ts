@@ -17,6 +17,7 @@ import {
   AUTH,
   CLOCK,
   FILE_IO,
+  NOTIFICATIONS_STATE,
   OFFICIAL_RESULTS,
   PERSISTENCE,
   PROFILE,
@@ -26,6 +27,7 @@ import {
 import { BrowserClock } from './infrastructure/browser-clock';
 import { BrowserFileIo } from './infrastructure/browser-file-io';
 import { BrowserSyncPrompts } from './infrastructure/browser-sync-prompts';
+import { LocalStorageNotifications } from './infrastructure/local-storage-notifications';
 import { RemoteOfficialResultsProvider } from './infrastructure/remote-official-results.provider';
 import { SupabaseAuthAdapter } from './infrastructure/supabase-auth.adapter';
 import { SupabasePredictionsAdapter } from './infrastructure/supabase-predictions.adapter';
@@ -51,6 +53,7 @@ export const appConfig: ApplicationConfig = {
     { provide: REMOTE_PREDICTIONS, useExisting: SupabasePredictionsAdapter },
     { provide: PROFILE, useExisting: SupabaseProfileAdapter },
     { provide: SYNC_PROMPTS, useExisting: BrowserSyncPrompts },
+    { provide: NOTIFICATIONS_STATE, useExisting: LocalStorageNotifications },
     // Charge les résultats officiels (serveur) au démarrage
     provideAppInitializer(() => inject(TournamentStore).loadOfficial()),
     // Démarre l'écoute de session (import/sync de compte à la connexion)

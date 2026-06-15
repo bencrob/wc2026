@@ -1,7 +1,8 @@
-import { DraftScoreMap, ScoreMap } from '../domain/models';
+import { DraftScoreMap, MatchId, ScoreMap } from '../domain/models';
 import { AuthPort, AuthUser } from '../domain/ports/auth.port';
 import { ClockPort } from '../domain/ports/clock.port';
 import { FileIoPort } from '../domain/ports/file-io.port';
+import { NotificationsStatePort } from '../domain/ports/notifications-state.port';
 import { OfficialResultsPort } from '../domain/ports/official-results.port';
 import { PersistencePort } from '../domain/ports/persistence.port';
 import { LeaderboardRow, ProfilePort } from '../domain/ports/profile.port';
@@ -135,6 +136,17 @@ export class SyncPromptsStub implements SyncPromptsPort {
   }
   notify(message: string): void {
     this.notifications.push(message);
+  }
+}
+
+/** État des notifications in-app, en mémoire. `null` = jamais enregistré (1re visite). */
+export class NotificationsStateStub implements NotificationsStatePort {
+  constructor(private seen: readonly MatchId[] | null = null) {}
+  loadSeenOfficial(): readonly MatchId[] | null {
+    return this.seen;
+  }
+  saveSeenOfficial(ids: readonly MatchId[]): void {
+    this.seen = ids;
   }
 }
 

@@ -8,6 +8,7 @@ import {
   AUTH,
   CLOCK,
   FILE_IO,
+  NOTIFICATIONS_STATE,
   OFFICIAL_RESULTS,
   PERSISTENCE,
   PROFILE,
@@ -18,6 +19,7 @@ import {
   AuthStub,
   ClockStub,
   FileIoSpy,
+  NotificationsStateStub,
   OfficialResultsStub,
   PersistenceStub,
   ProfileStub,
@@ -53,6 +55,7 @@ function setup(): Harness {
       { provide: REMOTE_PREDICTIONS, useValue: new RemotePredictionsStub() },
       { provide: PROFILE, useValue: new ProfileStub() },
       { provide: SYNC_PROMPTS, useValue: new SyncPromptsStub() },
+      { provide: NOTIFICATIONS_STATE, useValue: new NotificationsStateStub() },
     ],
   });
   const fixture = TestBed.createComponent(App);
