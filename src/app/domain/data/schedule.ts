@@ -47,7 +47,7 @@ export const SCHEDULE: Readonly<Record<MatchId, MatchSchedule>> = {
   M34: { date: '20 juin', venue: 'Estadio BBVA, Monterrey', kickoff: '2026-06-20T22:00:00-06:00' },
   M35: { date: '25 juin', venue: 'Arrowhead Stadium, Kansas City', kickoff: '2026-06-25T18:00:00-05:00' },
   M36: { date: '25 juin', venue: 'AT&T Stadium, Dallas', kickoff: '2026-06-25T18:00:00-05:00' },
-  M37: { date: '15 juin', venue: 'Lumen Field, Seattle' },
+  M37: { date: '15 juin', venue: 'Lumen Field, Seattle', kickoff: '2026-06-15T14:00:00-07:00' },
   M38: { date: '15 juin', venue: 'SoFi Stadium, Los Angeles', kickoff: '2026-06-15T18:00:00-07:00' },
   M39: { date: '21 juin', venue: 'SoFi Stadium, Los Angeles', kickoff: '2026-06-21T12:00:00-07:00' },
   M40: { date: '21 juin', venue: 'BC Place, Vancouver', kickoff: '2026-06-21T18:00:00-07:00' },
@@ -121,34 +121,17 @@ export const SCHEDULE: Readonly<Record<MatchId, MatchSchedule>> = {
   M104: { date: '19 juillet', venue: 'MetLife Stadium, New York/NJ', kickoff: '2026-07-19T15:00:00-04:00' },
 };
 
-/** Mois 2026 utilisés par les libellés de date (« 11 juin », « 1ᵉʳ juillet »). */
-const MONTHS: ReadonlyMap<string, string> = new Map([
-  ['juin', '06'],
-  ['juillet', '07'],
-]);
-
 /**
- * Repli quand le coup d'envoi précis manque : début du jour du match
- * (00:00 fuseau hôte UTC-6) → le pronostic se verrouille dès le jour du match.
+ * Coup d'envoi du match en ms epoch, ou `undefined` si le créneau précis est
+ * absent. Dans ce cas AUCUN verrou horaire ne s'applique (le match reste
+ * éditable jusqu'à un éventuel résultat officiel) — conforme à `MatchSchedule.kickoff`.
+ *
+ * ⚠️ Ne JAMAIS retomber sur un « début de journée » : ça verrouillerait le match
+ * dès minuit, bien avant le coup d'envoi réel (bug corrigé).
  */
-function dayStartMs(date: string): number | undefined {
-  const dayMatch = /^(\d+)/.exec(date.trim());
-  const dayStr = dayMatch?.[1];
-  if (dayStr === undefined) return undefined;
-  const monthName = date.includes('juillet') ? 'juillet' : date.includes('juin') ? 'juin' : '';
-  const month = MONTHS.get(monthName);
-  if (month === undefined) return undefined;
-  const ms = Date.parse(`2026-${month}-${dayStr.padStart(2, '0')}T00:00:00-06:00`);
-  return Number.isNaN(ms) ? undefined : ms;
-}
-
-/** Coup d'envoi du match en ms epoch (kickoff précis, sinon repli début de journée). */
 export function kickoffMsOf(id: MatchId): number | undefined {
-  const entry = SCHEDULE[id];
-  if (entry === undefined) return undefined;
-  if (entry.kickoff !== undefined) {
-    const ms = Date.parse(entry.kickoff);
-    if (!Number.isNaN(ms)) return ms;
-  }
-  return dayStartMs(entry.date);
+  const kickoff = SCHEDULE[id]?.kickoff;
+  if (kickoff === undefined) return undefined;
+  const ms = Date.parse(kickoff);
+  return Number.isNaN(ms) ? undefined : ms;
 }
