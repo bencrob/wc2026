@@ -6,10 +6,11 @@ describe('kickoffMsOf', () => {
     expect(kickoffMsOf('M1')).toBe(Date.parse('2026-06-11T13:00:00-06:00'));
   });
 
-  test('replie sur le début du jour du match (UTC-6) quand le kickoff manque', () => {
-    // M2 n'a pas de kickoff précis (date interne sans créneau réel) → repli 00:00 UTC-6.
+  test('renvoie undefined quand le kickoff manque (aucun verrou horaire)', () => {
+    // M2 n'a pas de créneau précis → pas de verrou horaire (éditable jusqu'à l'officiel).
+    // ⚠️ Surtout PAS de repli « début de journée » (verrouillait le match dès minuit).
     expect(SCHEDULE['M2']?.kickoff).toBeUndefined();
-    expect(kickoffMsOf('M2')).toBe(Date.parse('2026-06-11T00:00:00-06:00'));
+    expect(kickoffMsOf('M2')).toBeUndefined();
   });
 
   test('gère le libellé ordinal « 1ᵉʳ juillet »', () => {
