@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ballon de football">
+  <defs>
+    <radialGradient id="ball-shade" cx="38%" cy="33%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e9edf2" />
+    </radialGradient>
+    <clipPath id="ball-clip">
+      <circle cx="32" cy="32" r="29" />
+    </clipPath>
+    <polygon id="ball-pent" points="0,-7 6.66,-2.16 4.11,5.66 -4.11,5.66 -6.66,-2.16" fill="#15171a" />
+  </defs>
+
+  <circle cx="32" cy="32" r="29" fill="url(#ball-shade)" stroke="#15171a" stroke-width="2" />
+
+  <g clip-path="url(#ball-clip)" fill="#15171a" stroke="#15171a" stroke-width="2.2"
+     stroke-linecap="round" stroke-linejoin="round">
+    <!-- pentagone central -->
+    <polygon points="32,23 40.6,29.2 37.3,39.3 26.7,39.3 23.4,29.2" stroke="none" />
+    <!-- coutures vers les bords -->
+    <line x1="32" y1="23" x2="32" y2="5" />
+    <line x1="40.6" y1="29.2" x2="57.7" y2="23.66" />
+    <line x1="37.3" y1="39.3" x2="47.87" y2="53.84" />
+    <line x1="26.7" y1="39.3" x2="16.13" y2="53.84" />
+    <line x1="23.4" y1="29.2" x2="6.3" y2="23.66" />
+    <!-- pentagones de bord (rognés par le cercle) -->
+    <use href="#ball-pent" transform="translate(32,5) rotate(0)" />
+    <use href="#ball-pent" transform="translate(57.7,23.66) rotate(72)" />
+    <use href="#ball-pent" transform="translate(47.87,53.84) rotate(144)" />
+    <use href="#ball-pent" transform="translate(16.13,53.84) rotate(216)" />
+    <use href="#ball-pent" transform="translate(6.3,23.66) rotate(288)" />
+  </g>
+</svg>
