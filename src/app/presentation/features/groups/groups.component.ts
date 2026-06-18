@@ -35,6 +35,13 @@ const FIXTURES_BY_GROUP: ReadonlyMap<GroupId, readonly GroupFixture[]> = new Map
 export class GroupsComponent {
   private readonly store = inject(TournamentStore);
 
+  /**
+   * Poule dépliée à l'ouverture : match de poule en cours / prochain à venir,
+   * repli sur le groupe A. Lu une seule fois à la construction (snapshot) : la
+   * valeur reste figée ensuite, l'utilisateur garde la main sur l'accordéon.
+   */
+  protected readonly initialGroup: GroupId = this.store.focusGroup() ?? 'A';
+
   /** Vue prête à afficher : aucune logique dans le template. */
   protected readonly groupsVm = computed(() => {
     const groups = this.store.groups();
