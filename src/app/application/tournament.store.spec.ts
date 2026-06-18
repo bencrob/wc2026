@@ -144,6 +144,19 @@ describe('TournamentStore', () => {
     });
   });
 
+  describe('focusGroup', () => {
+    test('expose la poule du prochain match à venir', () => {
+      // M1 terminé à 21:00Z ; prochain coup d'envoi = M7 (groupe B).
+      const { store } = configure({ now: Date.parse('2026-06-11T22:00:00Z') });
+      expect(store.focusGroup()).toBe('B');
+    });
+
+    test('null une fois la phase de groupes terminée', () => {
+      const { store } = configure({ now: Date.parse('2026-07-10T00:00:00Z') });
+      expect(store.focusGroup()).toBeNull();
+    });
+  });
+
   describe('importPredictions', () => {
     test('rejette un JSON invalide', () => {
       const { store } = configure();

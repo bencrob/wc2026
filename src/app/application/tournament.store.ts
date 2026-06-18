@@ -1,6 +1,7 @@
 import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
 import { MatchAccessPolicy } from '../domain/policies/match-access.policy';
 import { kickoffMsOf } from '../domain/data/schedule';
+import { selectFocusGroup } from '../domain/engines/focus-group';
 import { DraftScore, DraftScoreMap, MatchId, ScoreMap, Side } from '../domain/models';
 import { TournamentEngine } from '../domain/engines/tournament.engine';
 import { SCHEMA_VERSION, ScoreMapValidator } from '../domain/validation/score-map.validator';
@@ -47,6 +48,8 @@ export class TournamentStore {
   readonly officialResults = this._official.asReadonly();
   /** Pronostics bruts saisis (sans fusion avec l'officiel) — pour la synchro de compte. */
   readonly predictions = this._predictions.asReadonly();
+  /** Poule à mettre en avant : match de poule en cours, sinon prochain à venir (`null` si aucun). */
+  readonly focusGroup = computed(() => selectFocusGroup(this._now()));
 
   constructor() {
     // Persistance réactive des pronostics (les officiels viennent du serveur, non sauvegardés).

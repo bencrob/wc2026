@@ -1,6 +1,6 @@
 <mat-accordion>
-  @for (grp of groupsVm(); track grp.id; let first = $first) {
-    <mat-expansion-panel [expanded]="first">
+  @for (grp of groupsVm(); track grp.id) {
+    <mat-expansion-panel [expanded]="grp.id === initialGroup">
       <mat-expansion-panel-header>
         <mat-panel-title class="grp-title">Groupe {{ grp.id }}</mat-panel-title>
         <mat-panel-description>
