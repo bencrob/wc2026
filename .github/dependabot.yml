@@ -25,12 +25,24 @@ updates:
       # Outils de dev / build (esbuild, vite, vitest, playwright, eslint, typescript…)
       dev-dependencies:
         dependency-type: development
+        # Angular est géré par le groupe `angular` (lockstep) → l'exclure ici,
+        # sinon @angular/build, cli, compiler-cli atterrissent dans ce groupe et
+        # cassent le verrou de version compiler ↔ compiler-cli.
+        exclude-patterns:
+          - "@angular/*"
+          - "@angular-*/*"
+          - "@angular-devkit/*"
         update-types:
           - minor
           - patch
       # Le reste des dépendances de prod en mises à jour mineures/patch groupées
       production-minor-patch:
         dependency-type: production
+        # Idem : Angular runtime (core, compiler, material…) reste dans `angular`.
+        exclude-patterns:
+          - "@angular/*"
+          - "@angular-*/*"
+          - "@angular-devkit/*"
         update-types:
           - minor
           - patch
