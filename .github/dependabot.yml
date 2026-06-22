@@ -16,12 +16,6 @@ updates:
       prefix: chore(deps)
       prefix-development: chore(deps-dev)
     groups:
-      # Angular doit avancer en lockstep (core/common/compiler/cdk/material/build/cli…)
-      angular:
-        patterns:
-          - "@angular/*"
-          - "@angular-*/*"
-          - "@angular-devkit/*"
       # Outils de dev / build (esbuild, vite, vitest, playwright, eslint, typescript…)
       dev-dependencies:
         dependency-type: development
@@ -34,6 +28,13 @@ updates:
         update-types:
           - minor
           - patch
+    # Angular est mis à jour via `ng update` (outil officiel Angular), pas par
+    # Dependabot : core / compiler / compiler-cli / cli / material… doivent avancer
+    # ENSEMBLE (compiler-cli exige compiler à la version exacte). Des bumps de patch
+    # séparés cassent ce verrou (npm ci échoue) → on laisse Angular hors de Dependabot.
+    ignore:
+      - dependency-name: "@angular/*"
+      - dependency-name: "@angular-devkit/*"
 
   # --- Actions GitHub (workflows) ---
   - package-ecosystem: github-actions
