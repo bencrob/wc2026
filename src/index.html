@@ -11,6 +11,8 @@
     />
     <meta name="theme-color" content="#0a3d62" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <!-- Icône d'installation iOS (l'iPhone applique son propre masque arrondi) -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
     <!-- Polices (Roboto, Material Icons) auto-hébergées via le build → offline réel -->
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- App-shell : peint immédiatement (avant le JS) → FCP/LCP rapides ; Angular le remplace -->
@@ -62,7 +64,7 @@
     <wc-root>
       <div class="app-splash">
         <div class="app-splash__bar"><img src="favicon.svg" alt="" /> Pronoscup 2026</div>
-        <img class="app-splash__spinner" src="ball.svg" alt="" role="status" aria-label="Chargement…" />
+        <img class="app-splash__spinner" src="ball.png" alt="" role="status" aria-label="Chargement…" />
       </div>
     </wc-root>
     <noscript>Veuillez activer JavaScript pour utiliser Pronoscup 2026.</noscript>
