@@ -1,21 +1,35 @@
 # Pronoscup 2026
 
+> Pronostics de la Coupe du Monde FIFA 2026 — dépôt `wcNg2026` · `bencrob/wc2026`
+
+**🔗 Application en ligne → <https://wc2026-rho.vercel.app/>**
+
+[![Démo en ligne](https://img.shields.io/badge/d%C3%A9mo-en%20ligne-000000?logo=vercel&logoColor=white)](https://wc2026-rho.vercel.app/)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![PWA](https://img.shields.io/badge/PWA-offline-blueviolet)
 ![ESLint](https://img.shields.io/badge/code%20style-ESLint-4B32C3?logo=eslint&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-118%20unit%20%2B%2018%20scripts%20%2B%203%20e2e-success)
+![Tests](https://img.shields.io/badge/tests-128%20unit%20%2B%2018%20scripts%20%2B%203%20e2e-success)
 ![Supabase](https://img.shields.io/badge/cloud-Supabase%20(optionnel)-3ECF8E?logo=supabase&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Last Commit](https://img.shields.io/github/last-commit/bencrob/wc2026)
 
-Application de pronostics pour la Coupe du Monde FIFA 2026 (48 équipes, 12 groupes,
+Application de pronostics pour la **Coupe du Monde FIFA 2026** (48 équipes, 12 groupes,
 104 matchs) : saisie des scores, classements et qualification automatiques (2 premiers
-+ 8 meilleurs 3es), tableau final à 32 avec propagation des vainqueurs, comparaison des
-pronostics aux résultats officiels. Application **statique, hors-ligne (PWA)** ; **backend cloud
-optionnel** (Supabase) pour la sauvegarde par compte, l'authentification (Google ou e-mail) et le
-classement entre joueurs — l'app reste **100 % fonctionnelle en local** si le cloud n'est pas configuré.
++ 8 meilleurs 3es), tableau final à 32 avec propagation des vainqueurs, comparaison aux
+résultats officiels. **Statique, hors-ligne (PWA)** ; **backend cloud optionnel** (Supabase)
+pour la sauvegarde par compte, l'authentification (Google ou e-mail) et le classement entre
+joueurs — l'app reste **100 % fonctionnelle en local** si le cloud n'est pas configuré.
+
+## Sommaire
+
+- [Vue d'ensemble](#vue-densemble-du-fonctionnement)
+- [Architecture (SOLID, hexagonale)](#architecture-solid-hexagonale)
+- [Démarrage & scripts](#démarrage--scripts)
+- [Cloud optionnel (Supabase)](#cloud-optionnel-supabase)
+- [Mettre à jour les résultats officiels](#mettre-à-jour-les-résultats-officiels)
+- [Documentation & licence](#documentation--licence)
 
 ## Vue d'ensemble du fonctionnement
 
@@ -91,28 +105,26 @@ src/app/
   classements et bracket, le pronostic reste affiché en comparaison (✓ exact / ≈ bon résultat / ✗ raté).
 - **PWA offline** : service worker, polices auto-hébergées, `official-results.json` en cache *freshness*.
 
-## Démarrage
+## Démarrage & scripts
 
 ```bash
 npm install
 npm start            # http://localhost:4200
 ```
 
-## Tests
+| Script | Rôle |
+|--------|------|
+| `npm start` | Serveur de dev — <http://localhost:4200> |
+| `npm run build` | Build de production → `dist/wcng2026/browser` |
+| `npm run watch` | Build de développement en watch |
+| `npm test` | Tests unitaires de l'app (Vitest, jsdom) — **128** |
+| `npm run test:scripts` | Tests des scripts (updater + classement, Vitest env node) — **18** |
+| `npm run e2e` | Tests end-to-end (Playwright) — **3** |
+| `npm run lint` | ESLint (angular-eslint, flat config) |
+| `npm run update:scores` | Met à jour `public/official-results.json` depuis l'API de scores |
+| `npm run update:leaderboard` | Recalcule la table `leaderboard` Supabase |
 
-```bash
-npm test             # tests unitaires de l'app (Vitest) — 118
-npm run test:scripts # tests des scripts (updater + classement, Vitest env node) — 18
-npm run e2e          # tests end-to-end (Playwright) — 3
-```
-
-## Build de production (PWA)
-
-```bash
-npm run build        # sortie : dist/wcng2026/browser
-```
-
-> Le service worker n'est actif qu'en build de production. Pour tester l'offline,
+> **Build PWA** : le service worker n'est actif qu'en build de production. Pour tester l'offline,
 > servez `dist/wcng2026/browser` (ex. `npx http-server dist/wcng2026/browser`).
 
 ## Cloud optionnel (Supabase)
@@ -187,15 +199,18 @@ Deux voies alimentent `public/official-results.json` — **la saisie manuelle pr
 
 ### Automatique (GitHub Actions)
 
-Le workflow [`.github/workflows/update-scores.yml`](.github/workflows/update-scores.yml) tourne
-toutes les ~30 min : il interroge l'API [football-data.org](https://www.football-data.org/)
-(Coupe du Monde), mappe chaque match terminé sur nos ids `M1..M104` (orientation + tirs au but,
-via `TournamentEngine`), valide, et **commit** le fichier si un score est tombé → Vercel redéploie.
-Un match n'est relevé qu'**à partir de 2 h après son coup d'envoi** ; sinon le tick suivant réessaie.
+Le workflow [`.github/workflows/update-scores.yml`](.github/workflows/update-scores.yml) interroge
+l'API [football-data.org](https://www.football-data.org/) (Coupe du Monde), mappe chaque match terminé
+sur nos ids `M1..M104` (orientation + tirs au but, via `TournamentEngine`), valide, et **commit** le
+fichier si un score est tombé → Vercel redéploie. Un match n'est relevé qu'**à partir de 2 h après son
+coup d'envoi** ; sinon le tick suivant réessaie.
+
+Déclenchement : **horaire** via [cron-job.org](https://cron-job.org) (`workflow_dispatch`, ponctuel),
+avec un **filet de secours toutes les 3 h** via le cron GitHub `0 */3 * * *`.
 
 ```mermaid
 flowchart LR
-  CRON["GitHub Actions<br/>cron */30 min"] --> SCRIPT["update-official-results.ts"]
+  CRON["cron-job.org (horaire)<br/>+ cron GitHub (secours 3 h)"] --> SCRIPT["update-official-results.ts"]
   SCRIPT -->|X-Auth-Token| API["football-data.org"]
   API --> MAP["map → M1..M104<br/>(orientation + t.a.b.)"]
   MAP --> MERGE{"absent du fichier<br/>& ≥ 2 h après K.O. ?"}
@@ -218,9 +233,9 @@ Après l'écriture des scores, le workflow lance aussi l'**étape classement**
 
 #### Fiabilité du déclenchement (cron-job.org)
 
-Le cron interne de GitHub Actions est **souvent retardé/sauté** (file d'attente partagée, surtout en
-haute fréquence). Pour un déclenchement **ponctuel**, un planificateur externe gratuit
-([cron-job.org](https://cron-job.org)) appelle l'API `workflow_dispatch` :
+Le cron interne de GitHub Actions est **souvent retardé/sauté** (file d'attente partagée). Pour un
+déclenchement **ponctuel et fiable**, un planificateur externe gratuit
+([cron-job.org](https://cron-job.org)) appelle l'API `workflow_dispatch` toutes les heures :
 
 ```
 POST https://api.github.com/repos/bencrob/wc2026/actions/workflows/update-scores.yml/dispatches
@@ -229,8 +244,8 @@ Headers: Authorization: Bearer <PAT fine-grained, scope Actions:write>
 Body:    {"ref":"main"}        # réponse attendue : 204
 ```
 
-Le cron natif GitHub peut être conservé comme **filet de secours** (idéalement passé en basse fréquence).
-L'updater étant **idempotent** (+ `concurrency`), un double déclenchement est sans risque.
+Le cron natif GitHub (`0 */3 * * *`) reste le **filet de secours** basse fréquence. L'updater étant
+**idempotent** (+ `concurrency`), un double déclenchement est sans risque.
 (Cron Vercel non utilisé : free tier = 1/jour.)
 
 ### Manuelle (correction / fallback)
@@ -248,3 +263,10 @@ main n'est **jamais écrasée** par l'auto.
 ```
 
 Les matchs concernés passent en lecture seule au prochain chargement.
+
+## Documentation & licence
+
+- **Documentation complète** (vault Obsidian, français) : [`docs/Index.md`](docs/Index.md) — règles
+  métier, règles techniques, tests & qualité, déploiement.
+- **Guide des conventions** (agents IA & contributeurs) : [`CLAUDE.md`](CLAUDE.md).
+- **Licence** : [MIT](LICENSE).
