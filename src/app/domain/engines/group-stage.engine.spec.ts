@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { THIRD_PLACE_SLOTS } from '../data/knockout-structure';
-import { THIRD_PLACE_ALLOCATION } from '../data/third-place-allocation';
+import { THIRD_PLACE_ALLOCATION, thirdPlaceComboKey } from '../data/third-place-allocation';
 import { GROUPS } from '../data/teams';
 import { DraftScoreMap, GroupId, GroupResult } from '../models';
 import { GroupStageEngine } from './group-stage.engine';
@@ -95,7 +95,7 @@ describe('GroupStageEngine', () => {
         }
         expect(new Set(values)).toEqual(new Set(qualified));
         // conforme à la table officielle FIFA (Annexe C), pas seulement « valide »
-        expect(assignment).toEqual(THIRD_PLACE_ALLOCATION[[...qualified].sort().join('')]);
+        expect(assignment).toEqual(THIRD_PLACE_ALLOCATION[thirdPlaceComboKey(qualified)]);
       }
     });
 
