@@ -8,6 +8,7 @@ import {
   THIRD_PLACE_SLOTS,
 } from './knockout-structure';
 import { SCHEDULE } from './schedule';
+import { THIRD_PLACE_ALLOCATION } from './third-place-allocation';
 import { GROUPS, TEAMS } from './teams';
 
 const num = (id: MatchId): number => Number(id.slice(1));
@@ -45,6 +46,31 @@ describe('Invariants des données du tournoi', () => {
     for (const groupsForSlot of Object.values(THIRD_PLACE_SLOTS)) {
       for (const g of groupsForSlot) expect(GROUPS).toContain(g);
     }
+  });
+
+  test('table officielle Annexe C : 495 combinaisons toutes conformes', () => {
+    const entries = Object.entries(THIRD_PLACE_ALLOCATION);
+    expect(entries.length).toBe(495); // C(12,8)
+    const slotKeys = [...Object.keys(THIRD_PLACE_SLOTS)].sort();
+    for (const [combo, alloc] of entries) {
+      // clé = 8 groupes distincts, valides et triés
+      const groups = [...combo];
+      expect(groups.length, combo).toBe(8);
+      expect(new Set(groups).size, combo).toBe(8);
+      for (const g of groups) expect(GROUPS).toContain(g);
+      expect(combo).toBe([...groups].sort().join(''));
+      // valeur = un groupe par créneau, permutation exacte de la combinaison
+      expect(Object.keys(alloc).sort()).toEqual(slotKeys);
+      expect(new Set(Object.values(alloc)), combo).toEqual(new Set(groups));
+      // chaque 3e tombe dans un créneau où son groupe est éligible
+      for (const slot of Object.keys(alloc)) {
+        expect(THIRD_PLACE_SLOTS[slot], `${alloc[slot]} en ${slot} (${combo})`).toContain(
+          alloc[slot],
+        );
+      }
+    }
+    // 495 clés uniques + toutes valides ⇒ exactement toutes les 8-combinaisons
+    expect(new Set(Object.keys(THIRD_PLACE_ALLOCATION)).size).toBe(495);
   });
 
   test('16 matchs R32, chaque côté résoluble', () => {

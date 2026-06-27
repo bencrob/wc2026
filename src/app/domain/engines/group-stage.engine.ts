@@ -1,5 +1,5 @@
 import { GROUP_FIXTURES } from '../data/fixtures';
-import { THIRD_PLACE_SLOTS } from '../data/knockout-structure';
+import { THIRD_PLACE_ALLOCATION } from '../data/third-place-allocation';
 import { GROUPS, TEAMS_BY_GROUP } from '../data/teams';
 import {
   DraftScoreMap,
@@ -12,8 +12,6 @@ import {
 } from '../models';
 import { required } from '../util/required';
 import { DefaultRankingComparator, RankingComparator } from './ranking-comparator';
-
-const SLOT_ORDER: readonly MatchId[] = Object.keys(THIRD_PLACE_SLOTS);
 
 /** Classements, 3es, affectation des créneaux R32 (PUR). */
 export class GroupStageEngine {
@@ -101,31 +99,20 @@ export class GroupStageEngine {
   }
 
   /**
-   * Affecte les 8 groupes 3es qualifiés aux 8 créneaux R32 (backtracking).
-   * Le glouton échoue ~80 % du temps → backtracking obligatoire.
-   * @returns slotId → groupId, ou null (garde défensive, jamais atteint pour les 495 combos).
+   * Affecte les 8 groupes 3es qualifiés aux 8 créneaux R32 selon la table
+   * OFFICIELLE FIFA 2026 (Annexe C → THIRD_PLACE_ALLOCATION).
+   *
+   * On consulte la table par la combinaison des 8 groupes (clé = lettres triées).
+   * Indispensable : pour une même combinaison plusieurs affectations respectent les
+   * contraintes d'éligibilité, mais une seule est l'officielle — un calcul local
+   * (glouton/backtracking) tomberait souvent sur une autre.
+   *
+   * @returns créneau (matchId) → groupId, ou null si la combinaison est inconnue
+   *          (jamais atteint pour les 495 combinaisons de 8 groupes).
    */
   assignThirdPlaceSlots(qualifiedGroups: readonly GroupId[]): Record<MatchId, GroupId> | null {
-    const qualified = new Set<GroupId>(qualifiedGroups);
-    const candidates: GroupId[][] = SLOT_ORDER.map((slot) =>
-      [...(THIRD_PLACE_SLOTS[slot] ?? [])].filter((g) => qualified.has(g)).sort(),
-    );
-
-    const used = new Set<GroupId>();
-    const assign: Record<MatchId, GroupId> = {};
-    const solve = (i: number): boolean => {
-      if (i === SLOT_ORDER.length) return true;
-      const slot = required(SLOT_ORDER[i], `créneau ${i} manquant`);
-      for (const g of candidates[i] ?? []) {
-        if (used.has(g)) continue;
-        used.add(g);
-        assign[slot] = g;
-        if (solve(i + 1)) return true;
-        used.delete(g);
-        delete assign[slot];
-      }
-      return false;
-    };
-    return solve(0) ? { ...assign } : null;
+    const key = [...qualifiedGroups].sort().join('');
+    const allocation = THIRD_PLACE_ALLOCATION[key];
+    return allocation ? { ...allocation } : null;
   }
 }
