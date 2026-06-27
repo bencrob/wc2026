@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { THIRD_PLACE_SLOTS } from '../data/knockout-structure';
+import { THIRD_PLACE_ALLOCATION } from '../data/third-place-allocation';
 import { GROUPS } from '../data/teams';
 import { DraftScoreMap, GroupId, GroupResult } from '../models';
 import { GroupStageEngine } from './group-stage.engine';
@@ -93,6 +94,8 @@ describe('GroupStageEngine', () => {
           expect(THIRD_PLACE_SLOTS[slot]).toContain(assignment[slot]);
         }
         expect(new Set(values)).toEqual(new Set(qualified));
+        // conforme à la table officielle FIFA (Annexe C), pas seulement « valide »
+        expect(assignment).toEqual(THIRD_PLACE_ALLOCATION[[...qualified].sort().join('')]);
       }
     });
 
@@ -105,6 +108,14 @@ describe('GroupStageEngine', () => {
       const assignment = engine.assignThirdPlaceSlots(['A', 'B', 'C', 'D', 'E', 'K', 'L', 'I']);
       expect(assignment?.['M80']).toBe('K');
       expect(assignment?.['M87']).toBe('L');
+    });
+
+    test('place le 3e au créneau OFFICIEL FIFA, pas une affectation arbitraire valide', () => {
+      // Régression : D et F sont tous deux éligibles à M77. La table officielle
+      // (Annexe C) y place le 3e du groupe F — p.ex. France (I1) vs Suède (3e du F) —
+      // et non celui du groupe D (p.ex. Paraguay), que l'ancien backtracking choisissait.
+      const a = engine.assignThirdPlaceSlots(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']);
+      expect(a?.['M77']).toBe('F');
     });
   });
 });
