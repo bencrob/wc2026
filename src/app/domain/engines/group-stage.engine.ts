@@ -1,5 +1,5 @@
 import { GROUP_FIXTURES } from '../data/fixtures';
-import { THIRD_PLACE_ALLOCATION } from '../data/third-place-allocation';
+import { officialThirdPlaceAllocation } from '../data/third-place-allocation';
 import { GROUPS, TEAMS_BY_GROUP } from '../data/teams';
 import {
   DraftScoreMap,
@@ -100,10 +100,9 @@ export class GroupStageEngine {
 
   /**
    * Affecte les 8 groupes 3es qualifiés aux 8 créneaux R32 selon la table
-   * OFFICIELLE FIFA 2026 (Annexe C → THIRD_PLACE_ALLOCATION).
+   * OFFICIELLE FIFA 2026 (Annexe C), via `officialThirdPlaceAllocation`.
    *
-   * On consulte la table par la combinaison des 8 groupes (clé = lettres triées).
-   * Indispensable : pour une même combinaison plusieurs affectations respectent les
+   * Indispensable : pour une même combinaison, plusieurs affectations respectent les
    * contraintes d'éligibilité, mais une seule est l'officielle — un calcul local
    * (glouton/backtracking) tomberait souvent sur une autre.
    *
@@ -111,8 +110,7 @@ export class GroupStageEngine {
    *          (jamais atteint pour les 495 combinaisons de 8 groupes).
    */
   assignThirdPlaceSlots(qualifiedGroups: readonly GroupId[]): Record<MatchId, GroupId> | null {
-    const key = [...qualifiedGroups].sort().join('');
-    const allocation = THIRD_PLACE_ALLOCATION[key];
+    const allocation = officialThirdPlaceAllocation(qualifiedGroups);
     return allocation ? { ...allocation } : null;
   }
 }
