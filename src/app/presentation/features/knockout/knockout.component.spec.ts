@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { TournamentStore } from '../../../application/tournament.store';
-import { FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from '../../../application/tokens';
+import { CLOCK, FILE_IO, OFFICIAL_RESULTS, PERSISTENCE } from '../../../application/tokens';
 import { GROUP_FIXTURES } from '../../../domain/data/fixtures';
 import { KO_MATCH_IDS } from '../../../domain/data/knockout-structure';
 import { MatchId, Score, Side } from '../../../domain/models';
 import { required } from '../../../domain/util/required';
-import { FileIoSpy, OfficialResultsStub, PersistenceStub } from '../../../testing/test-doubles';
+import { ClockStub, FileIoSpy, OfficialResultsStub, PersistenceStub } from '../../../testing/test-doubles';
 import { KnockoutComponent } from './knockout.component';
 
 interface RoundVm {
@@ -51,6 +51,7 @@ function setup(): Harness {
       { provide: PERSISTENCE, useValue: new PersistenceStub() },
       { provide: OFFICIAL_RESULTS, useValue: new OfficialResultsStub() },
       { provide: FILE_IO, useValue: new FileIoSpy() },
+      { provide: CLOCK, useValue: new ClockStub(0) }, // 1970 → avant tout coup d'envoi (tests déterministes)
     ],
   });
   const store = TestBed.inject(TournamentStore);

@@ -19,8 +19,12 @@ export class HomeComponent {
   protected readonly store = inject(TournamentStore);
   private readonly celebrate = inject(CelebrationService);
 
-  /** Onglet actif — ne monte QUE le contenu visible (perf : pas de re-render des tables masquées). */
-  protected readonly selected = signal(0);
+  /**
+   * Onglet actif — ne monte QUE le contenu visible (perf : pas de re-render des tables masquées).
+   * Ouvert sur le Tableau final (index 2) dès que la phase de groupes est terminée
+   * (phases finales) ; sinon sur les Poules (index 0).
+   */
+  protected readonly selected = signal(this.store.groupStageComplete() ? 2 : 0);
 
   protected readonly progressAria = computed(
     () => `${this.store.progress().total} sur 104 matchs renseignés`,
@@ -28,6 +32,15 @@ export class HomeComponent {
   protected readonly hasOfficial = computed(() => this.store.comparisonSummary().official > 0);
 
   constructor() {
+    // Bascule sur le Tableau final quand les poules se terminent (officiel chargé en
+    // asynchrone). Réglage initial unique — n'écrase jamais un choix d'onglet manuel.
+    const openOnBracket = effect(() => {
+      if (this.store.groupStageComplete()) {
+        this.selected.set(2);
+        openOnBracket.destroy();
+      }
+    });
+
     // 🎉 Confettis sur transition — pas sur l'état initial (pas de spam au chargement).
     let prevTotal: number | null = null;
     effect(() => {
