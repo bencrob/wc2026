@@ -111,6 +111,42 @@ describe('buildResults — knockout', () => {
     expect(addedIds).toEqual(['M73']);
   });
 
+  test('KO à t.a.b. : garde le score du terrain (regularTime), jamais les tirs au but', () => {
+    const base = fullGroupBase();
+    const seeded = new TournamentEngine().recompute({}, base).knockout['M73'];
+    const homeId = required(seeded?.home, 'M73 home');
+    const awayId = required(seeded?.away, 'M73 away');
+
+    // Le flux gonfle fullTime avec les t.a.b. (5–6), mais regularTime = 1–1 (réel).
+    const ko = feedMatch(homeId, awayId, 5, 6, {
+      winner: 'AWAY_TEAM',
+      duration: 'PENALTY_SHOOTOUT',
+      regularTime: { home: 1, away: 1 },
+      penalties: { home: 3, away: 4 },
+    });
+    const { results } = buildResults([ko], base, ALWAYS_DUE);
+
+    // 1–1 (terrain) + vainqueur t.a.b. — surtout PAS 5–6.
+    expect(results['M73']).toEqual({ home: 1, away: 1, winner: 'away' });
+  });
+
+  test('KO décisif en prolongation : regularTime + extraTime, sans t.a.b.', () => {
+    const base = fullGroupBase();
+    const seeded = new TournamentEngine().recompute({}, base).knockout['M73'];
+    const homeId = required(seeded?.home, 'M73 home');
+    const awayId = required(seeded?.away, 'M73 away');
+
+    const ko = feedMatch(homeId, awayId, 2, 1, {
+      winner: 'HOME_TEAM',
+      duration: 'EXTRA_TIME',
+      regularTime: { home: 1, away: 1 },
+      extraTime: { home: 1, away: 0 },
+    });
+    const { results } = buildResults([ko], base, ALWAYS_DUE);
+
+    expect(results['M73']).toEqual({ home: 2, away: 1 }); // décisif → pas de winner
+  });
+
   test('skips a KO draw with no shootout winner (would be invalid)', () => {
     const base = fullGroupBase();
     const seeded = new TournamentEngine().recompute({}, base).knockout['M73'];
