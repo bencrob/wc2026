@@ -27,7 +27,7 @@
     "@angular/router": "^22.0.5",
     "@angular/service-worker": "^22.0.5",
     "@fontsource/roboto": "^5.2.10",
-    "@supabase/supabase-js": "^2.108.2",
+    "@supabase/supabase-js": "^2.110.0",
     "canvas-confetti": "^1.9.4",
     "material-icons": "^1.13.14",
     "rxjs": "~7.8.0",
