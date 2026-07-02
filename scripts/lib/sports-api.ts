@@ -27,12 +27,24 @@ export interface FeedTeam {
   readonly tla?: string;
 }
 
+/** Un couple de buts domicile/extérieur d'un feed (nul si indisponible). */
+export interface FeedSides {
+  readonly home: number | null;
+  readonly away: number | null;
+}
+
 export interface FeedScore {
   readonly winner: FeedWinner;
   /** 'REGULAR' | 'EXTRA_TIME' | 'PENALTY_SHOOTOUT' (penalties decided the tie). */
   readonly duration: string;
-  readonly fullTime: { readonly home: number | null; readonly away: number | null };
-  readonly penalties?: { readonly home: number | null; readonly away: number | null };
+  /** Score du match (90 min + prolongation), HORS tirs au but. */
+  readonly fullTime: FeedSides;
+  /** Score après 90 min — présent si prolongation ou t.a.b. */
+  readonly regularTime?: FeedSides;
+  /** Buts de la prolongation — présent si prolongation. */
+  readonly extraTime?: FeedSides;
+  /** Buts de la SÉANCE de tirs au but uniquement — jamais le score du match. */
+  readonly penalties?: FeedSides;
 }
 
 export interface FeedMatch {

@@ -15,11 +15,32 @@ import { GROUP_FIXTURES } from '../../src/app/domain/data/fixtures';
 import { KO_ID_SET } from '../../src/app/domain/data/knockout-structure';
 import { TournamentEngine } from '../../src/app/domain/engines/tournament.engine';
 import { MatchId, Score, ScoreMap, Side, TeamId } from '../../src/app/domain/models';
-import { FeedMatch } from './sports-api';
+import { FeedMatch, FeedScore } from './sports-api';
 import { resolveTeam } from './team-map';
 
 export function pairKey(a: TeamId, b: TeamId): string {
   return a < b ? `${a}|${b}` : `${b}|${a}`;
+}
+
+/**
+ * Score « sur le terrain » (90 min + prolongation), HORS tirs au but.
+ * Un match à t.a.b. est nul ici (ex. 1–1) — la séance ne décide que du vainqueur.
+ * Priorité à regularTime + extraTime (fiable, exclut les t.a.b.) ; sinon fullTime.
+ */
+export function onPitchScore(score: FeedScore): { home: number; away: number } | null {
+  const rt = score.regularTime;
+  if (rt && typeof rt.home === 'number' && typeof rt.away === 'number') {
+    const et = score.extraTime;
+    return {
+      home: rt.home + (typeof et?.home === 'number' ? et.home : 0),
+      away: rt.away + (typeof et?.away === 'number' ? et.away : 0),
+    };
+  }
+  const ft = score.fullTime;
+  if (typeof ft.home === 'number' && typeof ft.away === 'number') {
+    return { home: ft.home, away: ft.away };
+  }
+  return null;
 }
 
 /** Group fixture lookup by unordered team-pair. */
@@ -89,20 +110,19 @@ export function buildResults(
   const addedIds: MatchId[] = [];
   const unmappedTeams = new Set<string>();
 
-  // Resolve every finished feed match's teams + full-time score once.
+  // Resolve every finished feed match's teams + on-pitch score (hors t.a.b.) once.
   let finishedCount = 0;
   const resolved: ResolvedFeedMatch[] = [];
   for (const m of feed) {
     if (m.status !== 'FINISHED') continue;
-    const fh = m.score.fullTime.home;
-    const fa = m.score.fullTime.away;
-    if (typeof fh !== 'number' || typeof fa !== 'number') continue;
+    const onPitch = onPitchScore(m.score);
+    if (!onPitch) continue;
     finishedCount++;
     const a = resolveTeam(m.homeTeam);
     const b = resolveTeam(m.awayTeam);
     if (!a) unmappedTeams.add(m.homeTeam.name ?? m.homeTeam.tla ?? '???');
     if (!b) unmappedTeams.add(m.awayTeam.name ?? m.awayTeam.tla ?? '???');
-    if (a && b) resolved.push({ a, b, home: fh, away: fa, match: m });
+    if (a && b) resolved.push({ a, b, home: onPitch.home, away: onPitch.away, match: m });
   }
 
   const mappedPairs = new Set<string>();
