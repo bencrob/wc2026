@@ -42,6 +42,8 @@ export class TournamentStore {
   readonly knockout = computed(() => this.runtime().knockout);
   readonly thirdPlaceAssignment = computed(() => this.runtime().thirdPlaceAssignment);
   readonly progress = computed(() => this.runtime().progress);
+  /** Phase de groupes terminée (72/72) → les phases finales commencent. */
+  readonly groupStageComplete = computed(() => this.progress().groupsDone >= 72);
   readonly comparison = computed(() => this.runtime().comparison);
   readonly comparisonSummary = computed(() => this.runtime().comparisonSummary);
   readonly effective = computed(() => this.runtime().effective);
